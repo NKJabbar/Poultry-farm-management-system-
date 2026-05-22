@@ -1,0 +1,7 @@
+{
+  "name": "FlockIntel",
+  "description": "Comprehensive poultry farm management system that tracks bird batches, logs daily feed/water, mortality, and egg production, and includes a conversational AI Health Advisory Chatbot.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

@@ -1,0 +1,592 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "Fira Code", "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Premium HCI-optimized slate and emerald palettes mapped to dynamic variables */
+  --color-slate-50: var(--slate-50);
+  --color-slate-100: var(--slate-100);
+  --color-slate-150: var(--slate-150);
+  --color-slate-200: var(--slate-200);
+  --color-slate-250: var(--slate-250);
+  --color-slate-300: var(--slate-300);
+  --color-slate-400: var(--slate-400);
+  --color-slate-500: var(--slate-500);
+  --color-slate-600: var(--slate-600);
+  --color-slate-700: var(--slate-700);
+  --color-slate-755: var(--slate-755);
+  --color-slate-800: var(--slate-800);
+  --color-slate-850: var(--slate-850);
+  --color-slate-900: var(--slate-900);
+  --color-slate-950: var(--slate-950);
+
+  --color-emerald-50: var(--emerald-50);
+  --color-emerald-100: var(--emerald-100);
+  --color-emerald-200: var(--emerald-200);
+  --color-emerald-600: var(--emerald-600);
+  --color-emerald-700: var(--emerald-700);
+  --color-emerald-800: var(--emerald-800);
+  --color-emerald-950: var(--emerald-950);
+
+  --color-rose-50: var(--rose-50);
+  --color-rose-100: var(--rose-100);
+  --color-rose-600: var(--rose-600);
+  --color-rose-950: var(--rose-950);
+
+  --color-amber-50: var(--amber-50);
+  --color-amber-100: var(--amber-100);
+  --color-amber-600: var(--amber-600);
+  --color-amber-700: var(--amber-700);
+  --color-amber-800: var(--amber-800);
+  --color-amber-950: var(--amber-950);
+}
+
+:root {
+  --color-bg-base: #ffffff;
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-150: #eef2f6;
+  --slate-200: #e2e8f0;
+  --slate-250: #e0e6ed;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-755: #1e293b;
+  --slate-800: #1e293b;
+  --slate-850: #0f172a;
+  --slate-900: #090d16;
+  --slate-950: #020617;
+
+  --emerald-50: #ecfdf5;
+  --emerald-100: #d1fae5;
+  --emerald-200: #a7f3d0;
+  --emerald-600: #059669;
+  --emerald-700: #047857;
+  --emerald-800: #065f46;
+  --emerald-950: #022c22;
+
+  --rose-50: #fff5f5;
+  --rose-100: #fee2e2;
+  --rose-600: #dc2626;
+  --rose-950: #450a0a;
+
+  --amber-50: #fffbeb;
+  --amber-100: #fef3c7;
+  --amber-600: #d97706;
+  --amber-700: #b45309;
+  --amber-800: #92400e;
+  --amber-950: #451a03;
+}
+
+.dark {
+  --color-bg-base: #0f172a; /* standard dark slate cards */
+  --slate-50: #020617;       /* true viewport dark background */
+  --slate-100: #0a0f1d;      /* inner background slate panels */
+  --slate-150: #1e293b;      /* borders and dividers */
+  --slate-200: #1e293b;      /* border overrides */
+  --slate-250: #334155;
+  --slate-300: #475569;      /* readable muted text / lines */
+  --slate-400: #64748b;
+  --slate-500: #94a3b8;      /* soft secondary helper description text */
+  --slate-600: #94a3b8;      
+  --slate-700: #cbd5e1;      /* highly legible primary body text */
+  --slate-755: #cbd5e1;
+  --slate-800: #e2e8f0;      /* prominent label texts / headers */
+  --slate-850: #f1f5f9;
+  --slate-900: #f8fafc;      /* premium clear subheaders */
+  --slate-950: #ffffff;      /* stark white headings */
+
+  --emerald-50: rgba(16, 185, 129, 0.1);
+  --emerald-100: rgba(16, 185, 129, 0.2);
+  --emerald-200: rgba(16, 185, 129, 0.35);
+  --emerald-600: #10b981;
+  --emerald-700: #34d399;
+  --emerald-800: #059669;
+  --emerald-950: #a7f3d0;
+
+  --rose-50: rgba(239, 68, 68, 0.1);
+  --rose-100: rgba(239, 68, 68, 0.22);
+  --rose-600: #fca5a5;
+  --rose-950: #fec2c2;
+
+  --amber-50: rgba(245, 158, 11, 0.08);
+  --amber-100: rgba(245, 158, 11, 0.2);
+  --amber-600: #fbbf24;
+  --amber-700: #f59e0b;
+  --amber-800: #fde68a;
+  --amber-950: #fef3c7;
+}
+
+/* --- DECOUPLED DARK MODE OVERRIDES --- */
+
+/* 1. Sidebar (Always premium dark navy/slate bar, preserving original high contrast) */
+.dark aside {
+  background-color: #090d16 !important;
+  border-right-color: #0f172a !important;
+  color: #cbd5e1 !important;
+}
+
+/* Sidebar navigation buttons always highly visible */
+.dark aside button {
+  color: #cbd5e1 !important;
+}
+
+.dark aside button:hover {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+}
+
+/* Sidebar active navigation button state */
+.dark aside button.bg-slate-800 {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+  border-right: 4px solid #10b981 !important;
+}
+
+/* 2. Feed Capacity Container - Highly Visible & Premium Dark Theme Styling */
+#feed-capacity-sidebar-widget {
+  background-color: rgba(2, 6, 23, 0.45) !important;
+  border-top: 1px solid #0f172a !important;
+}
+
+#feed-capacity-sidebar-widget > div {
+  background-color: #0f172a !important; /* solid space dark background, no transparent washout */
+  border: 1px solid #1e293b !important;
+}
+
+#feed-capacity-sidebar-widget p {
+  color: #cbd5e1 !important; /* light grey with high contrast ratio */
+}
+
+#feed-capacity-sidebar-widget p.text-slate-400 {
+  color: #94a3b8 !important; /* secondary text visible gray */
+}
+
+#feed-capacity-sidebar-widget button {
+  color: #34d399 !important; /* high-contrast mint green text */
+}
+
+#feed-capacity-sidebar-widget button:hover {
+  color: #6af5cb !important;
+  text-decoration: underline;
+}
+
+#feed-capacity-sidebar-widget .text-white {
+  color: #ffffff !important; /* stark contrast white for the fill percentage */
+}
+
+#feed-capacity-sidebar-widget .bg-slate-755,
+#feed-capacity-sidebar-widget .bg-slate-750 {
+  background-color: #1e293b !important; /* dark slate progress bar track */
+}
+
+/* 3. Real-time Advisor Card (Logging tab) - Elite High Contrast Forest Theme Override */
+.dark #realtime-advisor-card {
+  background-color: #022c22 !important; /* true deep dark forest background */
+  border: 1px solid #064e3b !important;
+  color: #f0fdf4 !important;
+}
+
+.dark #realtime-advisor-card h3 {
+  color: #ffffff !important; /* stark white title */
+}
+
+.dark #realtime-advisor-card p {
+  color: #a7f3d0 !important; /* elegant mint-green body, contrast ratio 5.5:1 */
+}
+
+.dark #realtime-advisor-card svg {
+  color: #34d399 !important; /* bright glowing spark icon */
+}
+
+/* Selected Symptoms badges & lists */
+.dark #realtime-advisor-card span.bg-emerald-900 {
+  background-color: #064e3b !important;
+  color: #a7f3d0 !important;
+}
+
+.dark #realtime-advisor-card li {
+  color: #d1fae5 !important;
+}
+
+/* Suggested Action sub-panel */
+.dark #realtime-advisor-card .bg-emerald-900 {
+  background-color: #042f24 !important;
+  border: 1px solid #064e3b !important;
+}
+
+.dark #realtime-advisor-card .bg-emerald-900 span {
+  color: #34d399 !important;
+}
+
+.dark #realtime-advisor-card .bg-emerald-900 p {
+  color: #e6fdf3 !important;
+}
+
+/* Consultation action button inside card */
+.dark #realtime-advisor-card button {
+  background-color: #34d399 !important; /* high contrast bright green button backing */
+  color: #022c22 !important; /* stark forest green bold text */
+}
+
+.dark #realtime-advisor-card button:hover {
+  background-color: #6af5cb !important;
+}
+
+/* 4. Chatbot Tab UI - Superb High Contrast Dark Theme Overrides */
+.dark #chatbot-tab-view .bg-slate-900 {
+  background-color: #0f172a !important; /* premium slate panel */
+  border-color: #1e293b !important;
+}
+
+/* User message bubbles stay readable and bright green in dark theme */
+.dark #chatbot-tab-view .justify-end .bg-slate-900 {
+  background-color: #10b981 !important; /* vibrant primary emerald bubble */
+  color: #ffffff !important; /* crisp white text */
+}
+
+.dark #chatbot-tab-view .justify-end .bg-slate-900 .text-slate-100 {
+  color: #ffffff !important;
+}
+
+/* Bot response text formatting */
+.dark #chatbot-tab-view .markdown-body {
+  color: #cbd5e1 !important;
+}
+
+.dark #chatbot-tab-view .markdown-body h2 {
+  color: #34d399 !important; /* high visibility mint heading on dark background */
+  border-bottom-color: #1e293b !important;
+}
+
+.dark #chatbot-tab-view .markdown-body h1,
+.dark #chatbot-tab-view .markdown-body h3,
+.dark #chatbot-tab-view .markdown-body strong {
+  color: #ffffff !important;
+}
+
+.dark #chatbot-tab-view .markdown-body p,
+.dark #chatbot-tab-view .markdown-body li {
+  color: #cbd5e1 !important;
+}
+
+/* Sparkles AI Avatar circle */
+.dark #chatbot-tab-view .w-8.h-8.bg-slate-900 {
+  background-color: #0f172a !important;
+  border: 1px solid #1e293b !important;
+}
+
+/* 5. Notifications Dropdown Bar & List Accessibility fixed selector */
+.dark #notifications-bell-wrapper .absolute.right-0 {
+  background-color: #0a0f1d !important;
+  border: 1px solid #1e293b !important;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.8) !important;
+}
+
+.dark #notifications-bell-wrapper .bg-slate-900 {
+  background-color: #020617 !important;
+  border-bottom: 1px solid #0f172a !important;
+}
+
+.dark #notifications-bell-wrapper .bg-slate-900 h3 {
+  color: #ffffff !important;
+}
+
+.dark #notifications-bell-wrapper .bg-slate-900 h4 {
+  color: #10b981 !important;
+}
+
+.dark #notifications-bell-wrapper .bg-slate-800 {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #ffffff !important;
+}
+
+.dark #notifications-bell-wrapper .text-slate-700 {
+  color: #cbd5e1 !important;
+}
+
+.dark #notifications-bell-wrapper .text-slate-600 {
+  color: #94a3b8 !important;
+}
+
+.dark #notifications-bell-wrapper .bg-slate-50\/50 {
+  background-color: rgba(2, 6, 23, 0.6) !important; /* unread backdrop is opaque-dark */
+}
+
+.dark #notifications-bell-wrapper .border-slate-200 {
+  border-color: #1e293b !important;
+}
+
+/* 6. Fix select option backgrounds for dark theme browsers */
+.dark option {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+}
+
+/* Ensure default main viewport typography text color is highly readable and comfortable in dark mode */
+.dark,
+.dark main {
+  color: #cbd5e1 !important;
+}
+
+/* Base Accessibility Rules */
+*:focus-visible {
+  outline: 2px solid var(--color-emerald-600);
+  outline-offset: 2px;
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Elegant Scrollbars for Better HCI Usability */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #1e293b;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Base style resets under Dark Mode */
+.dark body {
+  background-color: var(--slate-50) !important;
+  color: var(--slate-700) !important;
+}
+
+/* Force standard bg-white cards to dark panel background in dark mode */
+.dark .bg-white {
+  background-color: var(--color-bg-base) !important;
+}
+
+/* Force translucent white overlay borders & backgrounds to solid deep space navy panels in dark mode */
+.dark .bg-white\/60,
+.dark .bg-white\/70,
+.dark .bg-white\/80,
+.dark .bg-white\/90,
+.dark .bg-white\/95 {
+  background-color: var(--color-bg-base) !important;
+  border-color: var(--slate-150) !important;
+  color: var(--slate-700) !important;
+}
+
+/* Forms styling adapt in dark mode with strong contrast */
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: var(--slate-100) !important;
+  color: #ffffff !important;
+  border-color: var(--slate-150) !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: var(--slate-400) !important;
+}
+
+/* Fix focused inputs from becoming white/illegible in dark mode */
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+  background-color: var(--color-bg-base) !important;
+  color: #ffffff !important;
+  border-color: #10b981 !important;
+}
+
+/* Global button/active pill overrides for bg-slate-900 inside dark mode */
+/* This transforms the formerly white-on-white text clash into high contrast emerald pill states */
+.dark button.bg-slate-900,
+.dark a.bg-slate-900 {
+  background-color: #10b981 !important;
+  color: #022c22 !important;
+  border-color: #10b981 !important;
+  font-weight: 750 !important;
+}
+
+.dark button.bg-slate-900:hover,
+.dark a.bg-slate-900:hover {
+  background-color: #34d399 !important;
+}
+
+/* Sub-panels grids in charts */
+.dark svg line[stroke="#e2e8f0"],
+.dark svg line[stroke="#f1f5f9"] {
+  stroke: var(--slate-150) !important;
+}
+
+/* Chart captions labels readability matches */
+.dark svg text {
+  fill: var(--slate-500) !important;
+}
+
+/* High-contrast overlays and shadows for premium depth */
+.dark .shadow-sm,
+.dark .shadow-xs,
+.dark .shadow-md,
+.dark .shadow-lg,
+.dark .shadow-xl,
+.dark .shadow-2xl {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45) !important;
+}
+
+/* High Contrast Alert Banners and Badges Restyling in Dark Mode */
+.dark .bg-amber-50,
+.dark .bg-amber-100 {
+  background-color: rgba(245, 158, 11, 0.15) !important;
+  border-color: rgba(245, 158, 11, 0.4) !important;
+}
+.dark .bg-amber-50 p,
+.dark .bg-amber-50 span,
+.dark .bg-amber-50 text,
+.dark .bg-amber-50 h5,
+.dark .bg-amber-50 strong,
+.dark .bg-amber-100 p,
+.dark .bg-amber-100 h5,
+.dark .bg-amber-100 span,
+.dark .text-amber-800,
+.dark .text-amber-850,
+.dark .text-amber-900 {
+  color: #fbbf24 !important;
+}
+
+.dark .bg-rose-50,
+.dark .bg-rose-100 {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
+}
+.dark .bg-rose-50 p,
+.dark .bg-rose-50 span,
+.dark .bg-rose-50 text,
+.dark .bg-rose-50 h5,
+.dark .bg-rose-50 h4,
+.dark .bg-rose-100 p,
+.dark .bg-rose-100 h4,
+.dark .bg-rose-100 span,
+.dark .text-rose-800,
+.dark .text-rose-850,
+.dark .text-rose-900,
+.dark .bg-rose-220,
+.dark .bg-rose-200\/70 {
+  background-color: rgba(239, 68, 68, 0.1) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+  color: #fca5a5 !important;
+}
+.dark .bg-rose-50 p strong,
+.dark .bg-rose-100 p strong {
+  color: #ffffff !important;
+}
+
+.dark .bg-emerald-50,
+.dark .bg-emerald-100 {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+}
+.dark .bg-emerald-50 p,
+.dark .bg-emerald-150 p,
+.dark .bg-emerald-50 h4,
+.dark .bg-emerald-50 h3,
+.dark .bg-emerald-100 p,
+.dark .bg-emerald-100 h4,
+.dark .text-emerald-800,
+.dark .text-emerald-850,
+.dark .text-emerald-900 {
+  color: #34d399 !important;
+}
+
+.dark .bg-sky-50,
+.dark .bg-sky-100 {
+  background-color: rgba(14, 165, 233, 0.15) !important;
+  border-color: rgba(14, 165, 233, 0.4) !important;
+}
+.dark .bg-sky-50 p,
+.dark .bg-sky-100 p,
+.dark .bg-sky-50 span,
+.dark .bg-sky-100 span,
+.dark .text-sky-800,
+.dark .text-sky-850,
+.dark .text-sky-900 {
+  color: #38bdf8 !important;
+}
+
+.dark .bg-violet-50,
+.dark .bg-violet-100 {
+  background-color: rgba(139, 92, 246, 0.15) !important;
+  border-color: rgba(139, 92, 246, 0.4) !important;
+}
+.dark .bg-violet-50 p,
+.dark .bg-violet-100 p,
+.dark .bg-violet-50 span,
+.dark .bg-violet-100 span,
+.dark .text-violet-800,
+.dark .text-violet-850,
+.dark .text-violet-900 {
+  color: #a78bfa !important;
+}
+
+.dark .bg-indigo-50,
+.dark .bg-indigo-100 {
+  background-color: rgba(99, 102, 241, 0.15) !important;
+  border-color: rgba(99, 102, 241, 0.4) !important;
+}
+.dark .bg-indigo-50 p,
+.dark .bg-indigo-100 p,
+.dark .bg-indigo-50 span,
+.dark .bg-indigo-100 span,
+.dark .text-indigo-800,
+.dark .text-indigo-850,
+.dark .text-indigo-900 {
+  color: #c7d2fe !important;
+}
+
+.dark .bg-purple-50,
+.dark .bg-purple-100 {
+  background-color: rgba(168, 85, 247, 0.15) !important;
+  border-color: rgba(168, 85, 247, 0.4) !important;
+}
+.dark .bg-purple-50 p,
+.dark .bg-purple-100 p,
+.dark .bg-purple-50 span,
+.dark .bg-purple-100 span,
+.dark .text-purple-800,
+.dark .text-purple-850,
+.dark .text-purple-900 {
+  color: #e9d5ff !important;
+}
+
+/* General Accessibility Text Enhancements in Dark Mode */
+.dark p {
+  color: var(--slate-700) !important;
+}
+
+.dark h2,
+.dark h3,
+.dark h4,
+.dark strong {
+  color: #ffffff !important;
+}
