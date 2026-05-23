@@ -87,10 +87,10 @@ export const ChatbotTab: React.FC<ChatbotTabProps> = ({
   ];
 
   return (
-    <div id="chatbot-tab-view" className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
+    <div id="chatbot-tab-view" className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full min-h-0 lg:overflow-hidden">
       
       {/* Left Chatbot Sidebar: Reference Info & Quick Prompts */}
-      <div className="lg:col-span-4 space-y-6 flex flex-col justify-between">
+      <div className="lg:col-span-4 space-y-6 flex flex-col justify-start lg:overflow-y-auto lg:max-h-full lg:pr-1.5 min-h-0">
         
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl p-5 space-y-4 shadow-sm">
           <div className="flex items-center gap-2">
@@ -188,7 +188,7 @@ export const ChatbotTab: React.FC<ChatbotTabProps> = ({
       </div>
 
       {/* Right Chatbot Panel: Message History & Input */}
-      <div className="lg:col-span-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm flex flex-col h-[520px] overflow-hidden">
+      <div className="lg:col-span-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm flex flex-col h-[520px] lg:h-full lg:max-h-full min-h-0 overflow-hidden">
         
         {/* Header toolbar */}
         <div className="p-4 border-b border-slate-100/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/30 flex items-center justify-between">

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FlockBatch, DailyRecord } from "../types";
 import { 
   TrendingUp, 
@@ -12,7 +12,9 @@ import {
   Calendar,
   Layers,
   AlertTriangle,
-  Info
+  Info,
+  CheckCircle2,
+  Sparkles
 } from "lucide-react";
 
 interface AnalyticsTabProps {
@@ -37,7 +39,42 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ batches, records }) 
   // Crop to latest 14 entries for clear visualization
   const chartRecords = batchRecords.slice(-14);
 
-  // Compute stats
+  // Track states for each chart independently
+  const [selectedFeedId, setSelectedFeedId] = useState<string | null>(null);
+  const [selectedEggId, setSelectedEggId] = useState<string | null>(null);
+  const [selectedTempId, setSelectedTempId] = useState<string | null>(null);
+  const [selectedMortId, setSelectedMortId] = useState<string | null>(null);
+
+  // Fall back to latest day in records independently
+  const activeFeedRecord = chartRecords.find(r => r.id === selectedFeedId) || chartRecords[chartRecords.length - 1];
+  const activeFeedIndex = chartRecords.findIndex(r => r.id === (activeFeedRecord?.id));
+
+  const activeEggRecord = chartRecords.find(r => r.id === selectedEggId) || chartRecords[chartRecords.length - 1];
+  const activeEggIndex = chartRecords.findIndex(r => r.id === (activeEggRecord?.id));
+
+  const activeTempRecord = chartRecords.find(r => r.id === selectedTempId) || chartRecords[chartRecords.length - 1];
+  const activeTempIndex = chartRecords.findIndex(r => r.id === (activeTempRecord?.id));
+
+  const activeMortRecord = chartRecords.find(r => r.id === selectedMortId) || chartRecords[chartRecords.length - 1];
+  const activeMortIndex = chartRecords.findIndex(r => r.id === (activeMortRecord?.id));
+
+  // Reset selected record index when batch selection changes
+  useEffect(() => {
+    if (chartRecords.length > 0) {
+      const defaultId = chartRecords[chartRecords.length - 1].id;
+      setSelectedFeedId(defaultId);
+      setSelectedEggId(defaultId);
+      setSelectedTempId(defaultId);
+      setSelectedMortId(defaultId);
+    } else {
+      setSelectedFeedId(null);
+      setSelectedEggId(null);
+      setSelectedTempId(null);
+      setSelectedMortId(null);
+    }
+  }, [selectedBatchId]);
+
+  // Compute stats for the last 14 logged entries
   const totalFeed = chartRecords.reduce((acc, r) => acc + r.feedConsumption, 0);
   const totalWater = chartRecords.reduce((acc, r) => acc + r.waterConsumption, 0);
   const totalEggs = chartRecords.reduce((acc, r) => acc + (r.eggCollected || 0), 0);
@@ -57,7 +94,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ batches, records }) 
   const height = 180;
   const paddingLeft = 40;
   const paddingRight = 10;
-  const paddingTop = 15;
+  const paddingTop = 36;
   const paddingBottom = 25;
 
   const plotWidth = width - paddingLeft - paddingRight;
@@ -91,7 +128,6 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ batches, records }) 
   };
 
   // Helper: Temperature/Humidity values
-  // Temperatures are typically in 20-40 range in Ghana structure
   const maxTemp = 40;
   const minTemp = 15;
   const getTempY = (val: number) => {
@@ -117,7 +153,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ batches, records }) 
           <select
             value={selectedBatchId}
             onChange={(e) => setSelectedBatchId(e.target.value)}
-            className="bg-white border border-slate-200 text-slate-900 px-3.5 py-2.5 rounded-xl text-xs font-bold focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 shadow-xs cursor-pointer select-none"
+            className="bg-white border border-slate-200 text-slate-900 px-3.5 py-2.5 rounded-xl text-xs font-bold focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 shadow-xs cursor-pointer select-none font-sans"
           >
             {batches.map((b) => (
               <option key={b.id} value={b.id}>
@@ -142,23 +178,23 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ batches, records }) 
           {/* Top Performance Overview Grid */}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+            <div className="bg-white p-4 rounded-xl border border-slate-150 shadow-3xs">
               <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">Feed Eaten (14d)</span>
-              <span className="text-xl font-extrabold text-slate-800 block mt-1 font-sans">{totalFeed.toLocaleString()} kg</span>
+              <span className="text-xl font-extrabold text-slate-800 block mt-1 font-sans">{(totalFeed).toLocaleString()} kg</span>
               <span className="text-xs text-slate-500 block mt-1">
                 {(totalFeed / chartRecords.length).toFixed(1)} kg Daily Avg
               </span>
             </div>
 
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+            <div className="bg-white p-4 rounded-xl border border-slate-150 shadow-3xs">
               <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">Water Intake (14d)</span>
-              <span className="text-xl font-extrabold text-slate-800 block mt-1 font-sans">{totalWater.toLocaleString()} L</span>
+              <span className="text-xl font-extrabold text-slate-800 block mt-1 font-sans">{(totalWater).toLocaleString()} L</span>
               <span className="text-xs text-slate-500 block mt-1">
                 Water : Feed = <strong>{totalWaterFeedRatio}</strong>
               </span>
             </div>
 
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+            <div className="bg-white p-4 rounded-xl border border-slate-150 shadow-3xs">
               <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">Mortality Sum (14d)</span>
               <span className={`text-xl font-extrabold block mt-1 font-sans ${totalMortality > 4 ? "text-rose-600" : "text-slate-800"}`}>
                 {totalMortality} birds
@@ -168,10 +204,10 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ batches, records }) 
               </span>
             </div>
 
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+            <div className="bg-white p-4 rounded-xl border border-slate-150 shadow-3xs">
               <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">Egg Harvest (14d)</span>
               <span className="text-xl font-extrabold text-slate-800 block mt-1 font-sans">
-                {selectedBatch?.purpose !== "Broilers" ? `${totalEggs.toLocaleString()} pcs` : "N/A"}
+                {selectedBatch?.purpose !== "Broilers" ? `${(totalEggs).toLocaleString()} pcs` : "N/A"}
               </span>
               <span className="text-xs text-slate-500 block mt-1">
                 {selectedBatch?.purpose !== "Broilers" 
@@ -180,7 +216,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ batches, records }) 
               </span>
             </div>
 
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs col-span-2 md:col-span-1">
+            <div className="bg-white p-4 rounded-xl border border-slate-150 shadow-3xs col-span-2 md:col-span-1">
               <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">Climate Medians</span>
               <span className="text-xl font-extrabold text-slate-800 block mt-1 font-sans">{avgTemp}°C</span>
               <span className="text-xs text-slate-500 block mt-1">
@@ -203,17 +239,25 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ batches, records }) 
             </div>
           )}
 
-          {/* Graphics Split Panels */}
+          {/* Graphics Split Panels with Interactive Clicks */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             
             {/* Panel 1: Feed Consumption Timeline */}
             <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex flex-col">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-bold text-slate-800 uppercase tracking-widest flex items-center gap-1.5">
-                  <Activity className="w-4 h-4 text-emerald-600" />
+                <span className="text-xs font-bold text-slate-800 uppercase tracking-widest flex items-center gap-1.5 flex-wrap">
+                  <Activity className="w-4 h-4 text-emerald-600 animate-pulse" />
                   Feed Consumption (kg/day)
                 </span>
-                <span className="text-[10px] text-slate-400 font-bold">14-Day Timeline</span>
+                {activeFeedRecord ? (
+                  <span className="text-[10px] bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-md font-bold border border-emerald-100 animate-fadeIn shrink-0">
+                     Selected: {new Date(activeFeedRecord.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  </span>
+                ) : (
+                  <span className="text-[10px] bg-slate-50 text-slate-400 px-2.5 py-1 rounded-md font-medium border border-slate-100 shrink-0">
+                     No Day Selected
+                  </span>
+                )}
               </div>
 
               {/* Native SVG Line Chart */}
@@ -248,6 +292,19 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ batches, records }) 
                     );
                   })}
 
+                  {/* Vertical dotted trackline for inspected node */}
+                  {activeFeedIndex !== -1 && (
+                    <line 
+                      x1={getX(activeFeedIndex, chartRecords.length)}
+                      y1={paddingTop}
+                      x2={getX(activeFeedIndex, chartRecords.length)}
+                      y2={paddingTop + plotHeight}
+                      stroke="#10b981"
+                      strokeDasharray="3 3"
+                      strokeWidth="1.5"
+                    />
+                  )}
+
                   {/* Area fill */}
                   {chartRecords.length > 1 && (
                     <polygon
@@ -277,33 +334,93 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ batches, records }) 
                     points={chartRecords.map((r, idx) => `${getX(idx, chartRecords.length)},${getFeedY(r.feedConsumption)}`).join(" ")}
                   />
 
+                  {/* Invisible broad bars to catch mouse clicks/hovers easily across columns */}
+                  {chartRecords.map((r, idx) => {
+                    const colWidth = plotWidth / Math.max(chartRecords.length - 1, 1);
+                    const xStart = getX(idx, chartRecords.length) - colWidth / 2;
+                    return (
+                      <rect
+                        key={`hit-${idx}`}
+                        x={xStart}
+                        y={paddingTop}
+                        width={colWidth}
+                        height={plotHeight}
+                        fill="transparent"
+                        className="cursor-pointer hover:fill-slate-500/5 transition-colors"
+                        onClick={() => setSelectedFeedId(r.id)}
+                        onMouseEnter={() => setSelectedFeedId(r.id)}
+                      />
+                    );
+                  })}
+
                   {/* Data Node Points */}
-                  {chartRecords.map((r, idx) => (
-                    <circle
-                      key={idx}
-                      cx={getX(idx, chartRecords.length)}
-                      cy={getFeedY(r.feedConsumption)}
-                      r="3.5"
-                      fill="#ffffff"
-                      stroke="#059669"
-                      strokeWidth="2"
-                    />
-                  ))}
+                  {chartRecords.map((r, idx) => {
+                    const isActive = r.id === activeFeedRecord?.id;
+                    return (
+                      <g key={idx} className="cursor-pointer" onClick={() => setSelectedFeedId(r.id)} onMouseEnter={() => setSelectedFeedId(r.id)}>
+                        {isActive && (
+                          <g>
+                            <circle
+                              cx={getX(idx, chartRecords.length)}
+                              cy={getFeedY(r.feedConsumption)}
+                              r="8"
+                              fill="#10b981"
+                              fillOpacity="0.3"
+                            />
+                            {/* Value label pill box */}
+                            <rect
+                              x={getX(idx, chartRecords.length) - 52}
+                              y={getFeedY(r.feedConsumption) - 34}
+                              width="104"
+                              height="22"
+                              rx="6"
+                              fill="#0f172a"
+                            />
+                            <text
+                              x={getX(idx, chartRecords.length)}
+                              y={getFeedY(r.feedConsumption) - 20}
+                              fill="#ffffff"
+                              fontSize="9.5"
+                              fontWeight="extrabold"
+                              textAnchor="middle"
+                            >
+                              {r.feedConsumption}kg | {r.waterConsumption}L
+                            </text>
+                            <path
+                              d={`M ${getX(idx, chartRecords.length) - 4} ${getFeedY(r.feedConsumption) - 12} L ${getX(idx, chartRecords.length) + 4} ${getFeedY(r.feedConsumption) - 12} L ${getX(idx, chartRecords.length)} ${getFeedY(r.feedConsumption) - 6} Z`}
+                              fill="#0f172a"
+                            />
+                          </g>
+                        )}
+                        <circle
+                          cx={getX(idx, chartRecords.length)}
+                          cy={getFeedY(r.feedConsumption)}
+                          r={isActive ? "5.5" : "3.5"}
+                          fill={isActive ? "#059669" : "#ffffff"}
+                          stroke="#059669"
+                          strokeWidth="2.5"
+                        />
+                      </g>
+                    );
+                  })}
 
                   {/* Horizontal Dates Label Axis */}
                   {chartRecords.map((r, idx) => {
                     if (idx % 2 !== 0 && idx !== chartRecords.length - 1) return null;
                     const dateObj = new Date(r.date);
                     const label = `${dateObj.getDate()} ${dateObj.toLocaleString("en-US", { month: "short" })}`;
+                    const isActive = r.id === activeFeedRecord?.id;
                     return (
                       <text
                         key={idx}
                         x={getX(idx, chartRecords.length)}
                         y={height - 6}
-                        fill="#94a3b8"
-                        fontSize="8"
-                        fontWeight="semibold"
+                        fill={isActive ? "#059669" : "#94a3b8"}
+                        fontSize="8.5"
+                        fontWeight={isActive ? "bold" : "semibold"}
                         textAnchor="middle"
+                        className="cursor-pointer font-sans"
+                        onClick={() => setSelectedFeedId(r.id)}
                       >
                         {label}
                       </text>
@@ -315,18 +432,26 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ batches, records }) 
 
             {/* Panel 2: Egg Collection Curve */}
             <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex flex-col">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-bold text-slate-800 uppercase tracking-widest flex items-center gap-1.5">
+              <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-2.5">
+                <span className="text-xs font-bold text-slate-800 uppercase tracking-widest flex items-center gap-1.5 flex-wrap">
                   <Egg className="w-4 h-4 text-amber-500" />
                   Egg Production Yield (daily count)
                 </span>
-                <span className="text-[10px] text-slate-400 font-bold">Laying Efficiency</span>
+                {activeEggRecord ? (
+                  <span className="text-[10px] bg-amber-50 text-amber-700 px-2.5 py-1 rounded-md font-bold border border-amber-100 animate-fadeIn shrink-0">
+                     Selected: {new Date(activeEggRecord.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  </span>
+                ) : (
+                  <span className="text-[10px] bg-slate-50 text-slate-400 px-2.5 py-1 rounded-md font-medium border border-slate-100 shrink-0">
+                     No Day Selected
+                  </span>
+                )}
               </div>
 
               <div className="w-full flex-1 min-h-[180px]">
                 {selectedBatch?.purpose === "Broilers" ? (
                   <div className="h-full flex flex-col items-center justify-center text-center p-6 border-dashed border border-slate-100 rounded-xl bg-slate-50/50">
-                    <Layers className="w-8 h-8 text-slate-350 stroke-1" />
+                    <Layers className="w-8 h-8 text-slate-350 stroke-1 pointer-events-none" />
                     <p className="text-xs text-slate-500 mt-2">
                        This flock is registered as <strong>Broilers</strong> (meat production focus), so laying metrics are omitted.
                     </p>
@@ -362,6 +487,19 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ batches, records }) 
                       );
                     })}
 
+                    {/* Vertical dotted trackline */}
+                    {activeEggIndex !== -1 && (
+                      <line 
+                        x1={getX(activeEggIndex, chartRecords.length)}
+                        y1={paddingTop}
+                        x2={getX(activeEggIndex, chartRecords.length)}
+                        y2={paddingTop + plotHeight}
+                        stroke="#f59e0b"
+                        strokeDasharray="3 3"
+                        strokeWidth="1.5"
+                      />
+                    )}
+
                     {/* Area fill */}
                     {chartRecords.length > 1 && (
                       <polygon
@@ -391,33 +529,93 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ batches, records }) 
                       points={chartRecords.map((r, idx) => `${getX(idx, chartRecords.length)},${getEggY(r.eggCollected || 0)}`).join(" ")}
                     />
 
+                    {/* Broad hit catchers */}
+                    {chartRecords.map((r, idx) => {
+                      const colWidth = plotWidth / Math.max(chartRecords.length - 1, 1);
+                      const xStart = getX(idx, chartRecords.length) - colWidth / 2;
+                      return (
+                        <rect
+                          key={`hit-egg-${idx}`}
+                          x={xStart}
+                          y={paddingTop}
+                          width={colWidth}
+                          height={plotHeight}
+                          fill="transparent"
+                          className="cursor-pointer hover:fill-slate-500/5"
+                          onClick={() => setSelectedEggId(r.id)}
+                          onMouseEnter={() => setSelectedEggId(r.id)}
+                        />
+                      );
+                    })}
+
                     {/* Node points */}
-                    {chartRecords.map((r, idx) => (
-                      <circle
-                        key={idx}
-                        cx={getX(idx, chartRecords.length)}
-                        cy={getEggY(r.eggCollected || 0)}
-                        r="3.5"
-                        fill="#ffffff"
-                        stroke="#d97706"
-                        strokeWidth="2"
-                      />
-                    ))}
+                    {chartRecords.map((r, idx) => {
+                      const isActive = r.id === activeEggRecord?.id;
+                      return (
+                        <g key={idx} className="cursor-pointer" onClick={() => setSelectedEggId(r.id)} onMouseEnter={() => setSelectedEggId(r.id)}>
+                          {isActive && (
+                            <g>
+                              <circle
+                                cx={getX(idx, chartRecords.length)}
+                                cy={getEggY(r.eggCollected || 0)}
+                                r="8"
+                                fill="#f59e0b"
+                                fillOpacity="0.3"
+                              />
+                              {/* Inline value display */}
+                              <rect
+                                x={getX(idx, chartRecords.length) - 36}
+                                y={getEggY(r.eggCollected || 0) - 34}
+                                width="72"
+                                height="22"
+                                rx="6"
+                                fill="#b45309"
+                              />
+                              <text
+                                x={getX(idx, chartRecords.length)}
+                                y={getEggY(r.eggCollected || 0) - 20}
+                                fill="#ffffff"
+                                fontSize="9.5"
+                                fontWeight="extrabold"
+                                textAnchor="middle"
+                              >
+                                {r.eggCollected || 0} eggs
+                              </text>
+                              <path
+                                d={`M ${getX(idx, chartRecords.length) - 4} ${getEggY(r.eggCollected || 0) - 12} L ${getX(idx, chartRecords.length) + 4} ${getEggY(r.eggCollected || 0) - 12} L ${getX(idx, chartRecords.length)} ${getEggY(r.eggCollected || 0) - 6} Z`}
+                                fill="#b45309"
+                              />
+                            </g>
+                          )}
+                          <circle
+                            cx={getX(idx, chartRecords.length)}
+                            cy={getEggY(r.eggCollected || 0)}
+                            r={isActive ? "5.5" : "3.5"}
+                            fill={isActive ? "#d97706" : "#ffffff"}
+                            stroke="#d97706"
+                            strokeWidth="2.5"
+                          />
+                        </g>
+                      );
+                    })}
 
                     {/* Horizontal dates */}
                     {chartRecords.map((r, idx) => {
                       if (idx % 2 !== 0 && idx !== chartRecords.length - 1) return null;
                       const dateObj = new Date(r.date);
                       const label = `${dateObj.getDate()} ${dateObj.toLocaleString("en-US", { month: "short" })}`;
+                      const isActive = r.id === activeEggRecord?.id;
                       return (
                         <text
                           key={idx}
                           x={getX(idx, chartRecords.length)}
                           y={height - 6}
-                          fill="#94a3b8"
-                          fontSize="8"
-                          fontWeight="semibold"
+                          fill={isActive ? "#d97706" : "#94a3b8"}
+                          fontSize="8.5"
+                          fontWeight={isActive ? "bold" : "semibold"}
                           textAnchor="middle"
+                          className="cursor-pointer font-sans"
+                          onClick={() => setSelectedEggId(r.id)}
                         >
                           {label}
                         </text>
@@ -430,12 +628,20 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ batches, records }) 
 
             {/* Panel 3: Temperature Curves and Climate */}
             <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex flex-col">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-bold text-slate-800 uppercase tracking-widest flex items-center gap-1.5">
+              <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-2.5">
+                <span className="text-xs font-bold text-slate-800 uppercase tracking-widest flex items-center gap-1.5 flex-wrap">
                   <Thermometer className="w-4 h-4 text-rose-500" />
                   House Climate Curve (°C)
                 </span>
-                <span className="text-[10px] text-slate-400 font-bold">Heat Distress Overlays</span>
+                {activeTempRecord ? (
+                  <span className="text-[10px] bg-rose-50 text-rose-700 px-2.5 py-1 rounded-md font-bold border border-rose-100 animate-fadeIn shrink-0">
+                     Selected: {new Date(activeTempRecord.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  </span>
+                ) : (
+                  <span className="text-[10px] bg-slate-50 text-slate-400 px-2.5 py-1 rounded-md font-medium border border-slate-100 shrink-0">
+                     No Day Selected
+                  </span>
+                )}
               </div>
 
               <div className="w-full flex-1 min-h-[180px]">
@@ -454,8 +660,8 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ batches, records }) 
                     x={width - paddingRight - 10} 
                     y={getTempY(32) - 5} 
                     fill="#be123c" 
-                    fontSize="7" 
-                    fontWeight="bold" 
+                    fontSize="7.5" 
+                    fontWeight="extrabold" 
                     textAnchor="end"
                   >
                     🔥 HEAT STRESS THRESHOLD (32°C)
@@ -467,6 +673,14 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ batches, records }) 
                     const gridVal = Math.round(minTemp + (maxTemp - minTemp) * (1 - ratio));
                     return (
                       <g key={index}>
+                        <line 
+                          x1={paddingLeft} 
+                          y1={y} 
+                          x2={width - paddingRight} 
+                          y2={y} 
+                          stroke="#f1f5f9" 
+                          strokeWidth="1"
+                        />
                         <text 
                           x={paddingLeft - 8} 
                           y={y + 4} 
@@ -475,11 +689,24 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ batches, records }) 
                           textAnchor="end"
                           className="font-mono font-medium"
                         >
-                          {gridVal}°Cc
+                          {gridVal}°C
                         </text>
                       </g>
                     );
                   })}
+
+                  {/* Vertical trackline */}
+                  {activeTempIndex !== -1 && (
+                    <line 
+                      x1={getX(activeTempIndex, chartRecords.length)}
+                      y1={paddingTop}
+                      x2={getX(activeTempIndex, chartRecords.length)}
+                      y2={paddingTop + plotHeight}
+                      stroke="#dc2626"
+                      strokeDasharray="3 3"
+                      strokeWidth="1.5"
+                    />
+                  )}
 
                   {/* Area fill */}
                   {chartRecords.length > 1 && (
@@ -509,33 +736,93 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ batches, records }) 
                     points={chartRecords.map((r, idx) => `${getX(idx, chartRecords.length)},${getTempY(r.avgTemperature || 28)}`).join(" ")}
                   />
 
+                  {/* Broad hit catchers */}
+                  {chartRecords.map((r, idx) => {
+                    const colWidth = plotWidth / Math.max(chartRecords.length - 1, 1);
+                    const xStart = getX(idx, chartRecords.length) - colWidth / 2;
+                    return (
+                      <rect
+                        key={`hit-temp-${idx}`}
+                        x={xStart}
+                        y={paddingTop}
+                        width={colWidth}
+                        height={plotHeight}
+                        fill="transparent"
+                        className="cursor-pointer hover:fill-slate-500/5"
+                        onClick={() => setSelectedTempId(r.id)}
+                        onMouseEnter={() => setSelectedTempId(r.id)}
+                      />
+                    );
+                  })}
+
                   {/* Node points */}
-                  {chartRecords.map((r, idx) => (
-                    <circle
-                      key={idx}
-                      cx={getX(idx, chartRecords.length)}
-                      cy={getTempY(r.avgTemperature || 28)}
-                      r="3.5"
-                      fill="#ffffff"
-                      stroke="#dc2626"
-                      strokeWidth="2"
-                    />
-                  ))}
+                  {chartRecords.map((r, idx) => {
+                    const isActive = r.id === activeTempRecord?.id;
+                    return (
+                      <g key={idx} className="cursor-pointer" onClick={() => setSelectedTempId(r.id)} onMouseEnter={() => setSelectedTempId(r.id)}>
+                        {isActive && (
+                          <g>
+                            <circle
+                              cx={getX(idx, chartRecords.length)}
+                              cy={getTempY(r.avgTemperature || 28)}
+                              r="8"
+                              fill="#ef4444"
+                              fillOpacity="0.3"
+                            />
+                            {/* Inline value tooltip */}
+                            <rect
+                              x={getX(idx, chartRecords.length) - 34}
+                              y={getTempY(r.avgTemperature || 28) - 34}
+                              width="68"
+                              height="22"
+                              rx="6"
+                              fill="#9f1239"
+                            />
+                            <text
+                              x={getX(idx, chartRecords.length)}
+                              y={getTempY(r.avgTemperature || 28) - 20}
+                              fill="#ffffff"
+                              fontSize="9.5"
+                              fontWeight="extrabold"
+                              textAnchor="middle"
+                            >
+                              {r.avgTemperature}°C | {r.avgHumidity}%
+                            </text>
+                            <path
+                              d={`M ${getX(idx, chartRecords.length) - 4} ${getTempY(r.avgTemperature || 28) - 12} L ${getX(idx, chartRecords.length) + 4} ${getTempY(r.avgTemperature || 28) - 12} L ${getX(idx, chartRecords.length)} ${getTempY(r.avgTemperature || 28) - 6} Z`}
+                              fill="#9f1239"
+                            />
+                          </g>
+                        )}
+                        <circle
+                          cx={getX(idx, chartRecords.length)}
+                          cy={getTempY(r.avgTemperature || 28)}
+                          r={isActive ? "5.5" : "3.5"}
+                          fill={isActive ? "#dc2626" : "#ffffff"}
+                          stroke="#dc2626"
+                          strokeWidth="2.5"
+                        />
+                      </g>
+                    );
+                  })}
 
                   {/* Horizontal dates */}
                   {chartRecords.map((r, idx) => {
                     if (idx % 2 !== 0 && idx !== chartRecords.length - 1) return null;
                     const dateObj = new Date(r.date);
                     const label = `${dateObj.getDate()} ${dateObj.toLocaleString("en-US", { month: "short" })}`;
+                    const isActive = r.id === activeTempRecord?.id;
                     return (
                       <text
                         key={idx}
                         x={getX(idx, chartRecords.length)}
                         y={height - 6}
-                        fill="#94a3b8"
-                        fontSize="8"
-                        fontWeight="semibold"
+                        fill={isActive ? "#dc2626" : "#94a3b8"}
+                        fontSize="8.5"
+                        fontWeight={isActive ? "bold" : "semibold"}
                         textAnchor="middle"
+                        className="cursor-pointer font-sans"
+                        onClick={() => setSelectedTempId(r.id)}
                       >
                         {label}
                       </text>
@@ -547,12 +834,20 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ batches, records }) 
 
             {/* Panel 4: Mortality & Losses (Biosecurity view) */}
             <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex flex-col">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-bold text-slate-800 uppercase tracking-widest flex items-center gap-1.5">
+              <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-2.5">
+                <span className="text-xs font-bold text-slate-800 uppercase tracking-widest flex items-center gap-1.5 flex-wrap">
                   <Flame className="w-4 h-4 text-rose-500" />
                   Daily Losses / Mortality Count (birds)
                 </span>
-                <span className="text-[10px] text-slate-400 font-bold">Mortality Check</span>
+                {activeMortRecord ? (
+                  <span className="text-[10px] bg-rose-50 text-rose-700 px-2.5 py-1 rounded-md font-bold border border-rose-100 animate-fadeIn shrink-0">
+                     Selected: {new Date(activeMortRecord.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  </span>
+                ) : (
+                  <span className="text-[10px] bg-slate-50 text-slate-400 px-2.5 py-1 rounded-md font-medium border border-slate-100 shrink-0">
+                     No Day Selected
+                  </span>
+                )}
               </div>
 
               {/* Bar plot for daily loss count */}
@@ -560,7 +855,6 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ batches, records }) 
                 <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto">
                   {/* Grid lines */}
                   {[0, 2, 4, 6].map((num, idx) => {
-                    // map y proportional to 6 max
                     const y = paddingTop + plotHeight - (num / 6) * plotHeight;
                     return (
                       <g key={idx}>
@@ -586,32 +880,94 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ batches, records }) 
                     );
                   })}
 
+                  {/* Vertical trackline for selected item */}
+                  {activeMortIndex !== -1 && (
+                    <line 
+                      x1={getX(activeMortIndex, chartRecords.length)}
+                      y1={paddingTop}
+                      x2={getX(activeMortIndex, chartRecords.length)}
+                      y2={paddingTop + plotHeight}
+                      stroke="#dc2626"
+                      strokeDasharray="3 3"
+                      strokeWidth="1.5"
+                      opacity="0.5"
+                    />
+                  )}
+
+                  {/* Hit catcher bars */}
+                  {chartRecords.map((r, idx) => {
+                    const colWidth = plotWidth / Math.max(chartRecords.length - 1, 1);
+                    const xStart = getX(idx, chartRecords.length) - colWidth / 2;
+                    return (
+                      <rect
+                        key={`hit-mort-${idx}`}
+                        x={xStart}
+                        y={paddingTop}
+                        width={colWidth}
+                        height={plotHeight}
+                        fill="transparent"
+                        className="cursor-pointer hover:fill-slate-500/5 transition-colors"
+                        onClick={() => setSelectedMortId(r.id)}
+                        onMouseEnter={() => setSelectedMortId(r.id)}
+                      />
+                    );
+                  })}
+
                   {/* Render thin elegant bars */}
                   {chartRecords.map((r, idx) => {
                     const barWidth = 14;
                     const val = r.mortality || 0;
                     const x = getX(idx, chartRecords.length) - barWidth / 2;
-                    // scale bar height up to max of 6
                     const barH = (Math.min(val, 6) / 6) * plotHeight;
                     const y = paddingTop + plotHeight - barH;
+                    const isActive = r.id === activeMortRecord?.id;
 
                     return (
-                      <g key={idx}>
+                      <g key={idx} className="cursor-pointer" onClick={() => setSelectedMortId(r.id)} onMouseEnter={() => setSelectedMortId(r.id)}>
                         <rect
                           x={x}
                           y={y}
                           width={barWidth}
-                          height={Math.max(barH, 1)} // minimal lines for 0 is skipped or is small point
+                          height={Math.max(barH, 2)} 
                           rx="4"
-                          fill={val > 2 ? "#e11d48" : val > 0 ? "#fda4af" : "#f1f5f9"}
+                          fill={isActive ? "#dc2626" : (val > 2 ? "#e11d48" : val > 0 ? "#fda4af" : "#f1f5f9")}
+                          stroke={isActive ? "#991b1b" : "transparent"}
+                          strokeWidth={isActive ? "1.5" : "0"}
                         />
-                        {val > 0 && (
+                        {isActive && (
+                          <g>
+                            {/* Value tooltip above active bar */}
+                            <rect
+                              x={getX(idx, chartRecords.length) - 34}
+                              y={y - 34}
+                              width="68"
+                              height="22"
+                              rx="6"
+                              fill="#7f1d1d"
+                            />
+                            <text
+                              x={getX(idx, chartRecords.length)}
+                              y={y - 20}
+                              fill="#ffffff"
+                              fontSize="9.5"
+                              fontWeight="extrabold"
+                              textAnchor="middle"
+                            >
+                              {val} losses
+                            </text>
+                            <path
+                              d={`M ${getX(idx, chartRecords.length) - 4} ${y - 12} L ${getX(idx, chartRecords.length) + 4} ${y - 12} L ${getX(idx, chartRecords.length)} ${y - 6} Z`}
+                              fill="#7f1d1d"
+                            />
+                          </g>
+                        )}
+                        {val > 0 && !isActive && (
                           <text
                             x={x + barWidth / 2}
                             y={y - 4}
                             fontSize="8"
-                            fontWeight="bold"
-                            fill={val > 2 ? "#be123c" : "#9f1239"}
+                            fontWeight="extrabold"
+                            fill="#be123c"
                             textAnchor="middle"
                           >
                             {val}
@@ -626,15 +982,18 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ batches, records }) 
                     if (idx % 2 !== 0 && idx !== chartRecords.length - 1) return null;
                     const dateObj = new Date(r.date);
                     const label = `${dateObj.getDate()} ${dateObj.toLocaleString("en-US", { month: "short" })}`;
+                    const isActive = r.id === activeMortRecord?.id;
                     return (
                       <text
                         key={idx}
                         x={getX(idx, chartRecords.length)}
                         y={height - 6}
-                        fill="#94a3b8"
-                        fontSize="8"
-                        fontWeight="semibold"
+                        fill={isActive ? "#dc2626" : "#94a3b8"}
+                        fontSize="8.5"
+                        fontWeight={isActive ? "bold" : "semibold"}
                         textAnchor="middle"
+                        className="cursor-pointer font-sans"
+                        onClick={() => setSelectedMortId(r.id)}
                       >
                         {label}
                       </text>

@@ -67,6 +67,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
 
   // State for Editing Item Modal
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   // Filter items
   const filteredItems = items.filter((item) => {
@@ -384,13 +385,34 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
                       </button>
 
                       {/* Delete */}
-                      <button
-                        onClick={() => onDeleteItem(item.id)}
-                        title="Delete supply ledger item"
-                        className="p-2 bg-slate-50 hover:bg-rose-50 border border-slate-200 text-slate-400 hover:text-rose-600 hover:border-rose-100 rounded-lg transition-all cursor-pointer"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      {pendingDeleteId === item.id ? (
+                        <div className="flex items-center gap-1 bg-rose-50 border border-rose-100 rounded-lg px-2 py-1 animate-fadeIn">
+                          <span className="text-[10px] font-bold text-rose-700 uppercase leading-none">Delete?</span>
+                          <button
+                            onClick={() => {
+                              onDeleteItem(item.id);
+                              setPendingDeleteId(null);
+                            }}
+                            className="text-[10px] sm:text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 px-2 py-1 rounded-md transition-all cursor-pointer select-none"
+                          >
+                            Yes
+                          </button>
+                          <button
+                            onClick={() => setPendingDeleteId(null)}
+                            className="text-[10px] sm:text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded-md transition-all cursor-pointer select-none"
+                          >
+                            No
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setPendingDeleteId(item.id)}
+                          title="Delete supply ledger item"
+                          className="p-2 bg-slate-50 hover:bg-rose-50 border border-slate-200 text-slate-400 hover:text-rose-600 hover:border-rose-100 rounded-lg transition-all cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
 
                     </div>
 

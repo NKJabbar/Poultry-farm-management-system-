@@ -122,6 +122,9 @@ export default function App() {
   const notificationsRef = useRef<HTMLDivElement>(null);
   const [showNotifications, setShowNotifications] = useState<boolean>(false);
   const [showSoundPrompt, setShowSoundPrompt] = useState<boolean>(true);
+  const [pendingDeleteNotifId, setPendingDeleteNotifId] = useState<string | null>(null);
+  const [showClearAllNotifsConfirm, setShowClearAllNotifsConfirm] = useState<boolean>(false);
+  const [showResetAppConfirm, setShowResetAppConfirm] = useState<boolean>(false);
 
   // Close notification dropdown when clicked outside
   useEffect(() => {
@@ -139,8 +142,29 @@ export default function App() {
   }, []);
 
   const [notifications, setNotifications] = useState<NotificationItem[]>(() => {
-    const cached = localStorage.getItem("poultry_notifications");
+    const isReadyDemo = localStorage.getItem("poultry_is_demo_mode") === "true";
+    const cached = localStorage.getItem(isReadyDemo ? "poultry_demo_notifications" : "poultry_notifications");
     if (cached) return JSON.parse(cached);
+    if (isReadyDemo) {
+      return [
+        {
+          id: "notif-demo-welcome",
+          title: "🚀 Welcome to FlockIntel Demo Sandbox",
+          message: "You are currently exploring in Sandbox Demo Mode with simulation data. Feel free to log test variables or query the AI assistant.",
+          type: "success" as const,
+          timestamp: new Date().toISOString(),
+          read: false
+        },
+        {
+          id: "notif-demo-safety",
+          title: "⚠️ High Temperature Advisory (Demo Mode)",
+          message: "Sensors in Pen 2 logged 31.4°C. Maintain standard fan ventilation and cool water line flushes.",
+          type: "warning" as const,
+          timestamp: new Date(Date.now() - 3600000).toISOString(),
+          read: false
+        }
+      ];
+    }
     return [
       {
         id: "notif-welcome",
@@ -173,8 +197,12 @@ export default function App() {
   }, [batches, isDemoMode]);
 
   useEffect(() => {
-    localStorage.setItem("poultry_notifications", JSON.stringify(notifications));
-  }, [notifications]);
+    if (isDemoMode) {
+      localStorage.setItem("poultry_demo_notifications", JSON.stringify(notifications));
+    } else {
+      localStorage.setItem("poultry_notifications", JSON.stringify(notifications));
+    }
+  }, [notifications, isDemoMode]);
 
   useEffect(() => {
     if (isDemoMode) {
@@ -295,13 +323,71 @@ export default function App() {
   // Complete Onboarding & Choose Mode
   const handleCompleteOnboarding = (mode: "demo" | "clean") => {
     if (mode === "clean") {
+      setIsDemoMode(false);
+      localStorage.setItem("poultry_is_demo_mode", "false");
       setBatches([]);
       setRecords([]);
       setChatMessages([]);
       setSiloLevel(5000);
       setInventoryItems([]);
       setInventoryAdjustments([]);
-      setNotifications([]);
+      const mainWelcome: NotificationItem[] = [
+        {
+          id: "notif-welcome",
+          title: "👋 Welcome to FlockIntel",
+          message: "Your state-of-the-art poultry automation hub. Create batches with customized day-count settings to receive customized veterinary guidelines.",
+          type: "success" as const,
+          timestamp: new Date().toISOString(),
+          read: false
+        }
+      ];
+      setNotifications(mainWelcome);
+
+      localStorage.setItem("poultry_batches", JSON.stringify([]));
+      localStorage.setItem("poultry_records", JSON.stringify([]));
+      localStorage.setItem("poultry_chat", JSON.stringify([]));
+      localStorage.setItem("poultry_silo", "5000");
+      localStorage.setItem("poultry_inventory_items", JSON.stringify([]));
+      localStorage.setItem("poultry_inventory_adjustments", JSON.stringify([]));
+      localStorage.setItem("poultry_notifications", JSON.stringify(mainWelcome));
+    } else {
+      setIsDemoMode(true);
+      localStorage.setItem("poultry_is_demo_mode", "true");
+      setBatches(initialBatches);
+      setRecords(generateInitialRecords());
+      setChatMessages([]);
+      setSiloLevel(3750);
+      setInventoryItems(initialInventoryItems);
+      setInventoryAdjustments(initialInventoryAdjustments);
+      const demoWelcome: NotificationItem[] = [
+        {
+          id: "notif-demo-welcome",
+          title: "🚀 Welcome to FlockIntel Demo Sandbox",
+          message: "You are currently exploring in Sandbox Demo Mode with simulation data. Feel free to log test variables or query the AI assistant.",
+          type: "success" as const,
+          timestamp: new Date().toISOString(),
+          read: false
+        },
+        {
+          id: "notif-demo-safety",
+          title: "⚠️ High Temperature Advisory (Demo Mode)",
+          message: "Sensors in Pen 2 logged 31.4°C. Maintain standard fan circulation to mitigate heat stress.",
+          type: "warning" as const,
+          timestamp: new Date(Date.now() - 3600000).toISOString(),
+          read: false
+        }
+      ];
+      setNotifications(demoWelcome);
+
+      localStorage.setItem("poultry_demo_batches", JSON.stringify(initialBatches));
+      localStorage.setItem("poultry_demo_records", JSON.stringify(generateInitialRecords()));
+      localStorage.setItem("poultry_demo_chat", JSON.stringify([]));
+      localStorage.setItem("poultry_demo_silo", "3750");
+      localStorage.setItem("poultry_demo_inventory_items", JSON.stringify(initialInventoryItems));
+      localStorage.setItem("poultry_demo_inventory_adjustments", JSON.stringify(initialInventoryAdjustments));
+      localStorage.setItem("poultry_demo_notifications", JSON.stringify(demoWelcome));
+
+      // Leave main account clean/empty so switching to it starts fresh
       localStorage.setItem("poultry_batches", JSON.stringify([]));
       localStorage.setItem("poultry_records", JSON.stringify([]));
       localStorage.setItem("poultry_chat", JSON.stringify([]));
@@ -309,19 +395,6 @@ export default function App() {
       localStorage.setItem("poultry_inventory_items", JSON.stringify([]));
       localStorage.setItem("poultry_inventory_adjustments", JSON.stringify([]));
       localStorage.setItem("poultry_notifications", JSON.stringify([]));
-    } else {
-      setBatches(initialBatches);
-      setRecords(generateInitialRecords());
-      setChatMessages([]);
-      setSiloLevel(3750);
-      setInventoryItems(initialInventoryItems);
-      setInventoryAdjustments(initialInventoryAdjustments);
-      localStorage.setItem("poultry_batches", JSON.stringify(initialBatches));
-      localStorage.setItem("poultry_records", JSON.stringify(generateInitialRecords()));
-      localStorage.setItem("poultry_chat", JSON.stringify([]));
-      localStorage.setItem("poultry_silo", "3750");
-      localStorage.setItem("poultry_inventory_items", JSON.stringify(initialInventoryItems));
-      localStorage.setItem("poultry_inventory_adjustments", JSON.stringify(initialInventoryAdjustments));
     }
     localStorage.setItem("poultry_has_onboarded_v4", "true");
     setHasSeenWelcome(true);
@@ -335,6 +408,7 @@ export default function App() {
     localStorage.setItem("poultry_silo", siloLevel.toString());
     localStorage.setItem("poultry_inventory_items", JSON.stringify(inventoryItems));
     localStorage.setItem("poultry_inventory_adjustments", JSON.stringify(inventoryAdjustments));
+    localStorage.setItem("poultry_notifications", JSON.stringify(notifications));
 
     // 2. Read existing sandbox values or defaults
     const cachedDemoBatches = localStorage.getItem("poultry_demo_batches") || JSON.stringify(initialBatches);
@@ -343,6 +417,26 @@ export default function App() {
     const cachedDemoSilo = localStorage.getItem("poultry_demo_silo") || "3750";
     const cachedDemoInvItems = localStorage.getItem("poultry_demo_inventory_items") || JSON.stringify(initialInventoryItems);
     const cachedDemoInvAdjs = localStorage.getItem("poultry_demo_inventory_adjustments") || JSON.stringify(initialInventoryAdjustments);
+    const cachedDemoNotifs = localStorage.getItem("poultry_demo_notifications");
+
+    const parsedDemoNotifs = cachedDemoNotifs ? JSON.parse(cachedDemoNotifs) : [
+      {
+        id: "notif-demo-welcome",
+        title: "🚀 Welcome to FlockIntel Demo Sandbox",
+        message: "You are currently exploring in Sandbox Demo Mode with simulation data. Feel free to log test variables or query the AI assistant.",
+        type: "success" as const,
+        timestamp: new Date().toISOString(),
+        read: false
+      },
+      {
+        id: "notif-demo-safety",
+        title: "⚠️ High Temperature Advisory (Demo Mode)",
+        message: "Sensors in Pen 2 logged 31.4°C. Maintain standard fan circulation to mitigate heat stress.",
+        type: "warning" as const,
+        timestamp: new Date(Date.now() - 3600000).toISOString(),
+        read: false
+      }
+    ];
 
     // 3. Set standard react state
     setBatches(JSON.parse(cachedDemoBatches));
@@ -356,11 +450,17 @@ export default function App() {
     setIsDemoMode(true);
     localStorage.setItem("poultry_is_demo_mode", "true");
 
-    pushNotification(
-      "💻 Switched to Demo Sandbox",
-      "You are inside the Simulated Demo. Any data entries here are isolated from your live production metrics.",
-      "info"
-    );
+    const newDemoNotif: NotificationItem = {
+      id: `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      title: "💻 Switched to Demo Sandbox",
+      message: "You are inside the Simulated Demo. Any data entries here are isolated from your live production metrics.",
+      type: "info" as const,
+      timestamp: new Date().toISOString(),
+      read: false,
+    };
+    const updatedNotifs = [newDemoNotif, ...parsedDemoNotifs];
+    setNotifications(updatedNotifs);
+    localStorage.setItem("poultry_demo_notifications", JSON.stringify(updatedNotifs));
   };
 
   const handleSwitchToMainAccount = () => {
@@ -371,6 +471,7 @@ export default function App() {
     localStorage.setItem("poultry_demo_silo", siloLevel.toString());
     localStorage.setItem("poultry_demo_inventory_items", JSON.stringify(inventoryItems));
     localStorage.setItem("poultry_demo_inventory_adjustments", JSON.stringify(inventoryAdjustments));
+    localStorage.setItem("poultry_demo_notifications", JSON.stringify(notifications));
 
     // 2. Read live account data
     const cachedMainBatches = localStorage.getItem("poultry_batches") || "[]";
@@ -379,6 +480,18 @@ export default function App() {
     const cachedMainSilo = localStorage.getItem("poultry_silo") || "5000";
     const cachedMainInvItems = localStorage.getItem("poultry_inventory_items") || "[]";
     const cachedMainInvAdjs = localStorage.getItem("poultry_inventory_adjustments") || "[]";
+    const cachedMainNotifs = localStorage.getItem("poultry_notifications");
+
+    const parsedMainNotifs = cachedMainNotifs ? JSON.parse(cachedMainNotifs) : [
+      {
+        id: "notif-welcome",
+        title: "👋 Welcome to FlockIntel",
+        message: "Your state-of-the-art poultry automation hub. Create batches with customized day-count settings to receive customized veterinary guidelines.",
+        type: "success" as const,
+        timestamp: new Date().toISOString(),
+        read: false
+      }
+    ];
 
     // 3. Update react state
     setBatches(JSON.parse(cachedMainBatches));
@@ -392,11 +505,17 @@ export default function App() {
     setIsDemoMode(false);
     localStorage.setItem("poultry_is_demo_mode", "false");
 
-    pushNotification(
-      "🏢 Returned to Main Account",
-      "Your real-time bio-security telemetry has been fully restored.",
-      "success"
-    );
+    const newMainNotif: NotificationItem = {
+      id: `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      title: "🏢 Returned to Main Account",
+      message: "Your real-time bio-security telemetry has been fully restored.",
+      type: "success" as const,
+      timestamp: new Date().toISOString(),
+      read: false,
+    };
+    const updatedNotifs = [newMainNotif, ...parsedMainNotifs];
+    setNotifications(updatedNotifs);
+    localStorage.setItem("poultry_notifications", JSON.stringify(updatedNotifs));
   };
 
   const handleLoadDemoData = () => {
@@ -407,6 +526,7 @@ export default function App() {
     localStorage.setItem("poultry_silo", siloLevel.toString());
     localStorage.setItem("poultry_inventory_items", JSON.stringify(inventoryItems));
     localStorage.setItem("poultry_inventory_adjustments", JSON.stringify(inventoryAdjustments));
+    localStorage.setItem("poultry_notifications", JSON.stringify(notifications));
 
     // Reset demo state variables to the pristine initial mock telemetry
     setBatches(initialBatches);
@@ -416,12 +536,41 @@ export default function App() {
     setInventoryItems(initialInventoryItems);
     setInventoryAdjustments(initialInventoryAdjustments);
 
+    const freshDemoNotifs: NotificationItem[] = [
+      {
+        id: "notif-demo-welcome",
+        title: "🚀 Welcome to FlockIntel Demo Sandbox",
+        message: "You are currently exploring in Sandbox Demo Mode with simulation data. Feel free to log test variables or query the AI assistant.",
+        type: "success" as const,
+        timestamp: new Date().toISOString(),
+        read: false
+      },
+      {
+        id: "notif-demo-safety",
+        title: "⚠️ High Temperature Advisory (Demo Mode)",
+        message: "Sensors in Pen 2 logged 31.4°C. Maintain standard fan circulation to mitigate heat stress.",
+        type: "warning" as const,
+        timestamp: new Date(Date.now() - 3600000).toISOString(),
+        read: false
+      },
+      {
+        id: "notif-demo-loaded",
+        title: "Demo Data Loaded Successfully",
+        message: "We pre-loaded operational layer and broiler batches, 15 days of daily records, active supply inventory and vaccination telemetry.",
+        type: "success" as const,
+        timestamp: new Date().toISOString(),
+        read: false
+      }
+    ];
+    setNotifications(freshDemoNotifs);
+
     localStorage.setItem("poultry_demo_batches", JSON.stringify(initialBatches));
     localStorage.setItem("poultry_demo_records", JSON.stringify(generateInitialRecords()));
     localStorage.setItem("poultry_demo_chat", JSON.stringify([]));
     localStorage.setItem("poultry_demo_silo", "3750");
     localStorage.setItem("poultry_demo_inventory_items", JSON.stringify(initialInventoryItems));
     localStorage.setItem("poultry_demo_inventory_adjustments", JSON.stringify(initialInventoryAdjustments));
+    localStorage.setItem("poultry_demo_notifications", JSON.stringify(freshDemoNotifs));
 
     setIsDemoMode(true);
     localStorage.setItem("poultry_is_demo_mode", "true");
@@ -431,12 +580,6 @@ export default function App() {
     // Auto close tour overlay
     setShowTourOnly(false);
     setTourStep(0);
-
-    pushNotification(
-      "Demo Data Loaded Successfully",
-      "We pre-loaded operational layer and broiler batches, 15 days of daily records, active supply inventory and vaccination telemetry.",
-      "success"
-    );
   };
 
   // Feed stock deduction calculator
@@ -1226,8 +1369,8 @@ export default function App() {
                   {/* Dropdown Header */}
                   <div className="p-4 bg-slate-900 text-white flex items-center justify-between">
                     <div>
-                      <h4 className="text-xs font-black uppercase tracking-widest text-emerald-400">Telemetry Alarms</h4>
-                      <h3 className="text-sm font-bold mt-0.5">Live Device Notifications</h3>
+                      <h4 className="text-xs font-black uppercase tracking-widest text-emerald-400">Critical Alerts</h4>
+                      <h3 className="text-sm font-bold mt-0.5">Advisories & Alarms</h3>
                     </div>
                     <div className="flex gap-2">
                       <button 
@@ -1264,7 +1407,7 @@ export default function App() {
                     {notifications.length === 0 ? (
                       <div className="p-8 text-center text-slate-400 space-y-2">
                         <Bell className="w-8 h-8 mx-auto stroke-1" />
-                        <p className="text-xs font-sans">No live notifications available right now.</p>
+                        <p className="text-xs font-sans">No live advisories or alarms available right now.</p>
                       </div>
                     ) : (
                       notifications.map((notif) => (
@@ -1294,25 +1437,44 @@ export default function App() {
                             <p className="text-[11px] text-slate-500 leading-normal break-words">
                               {notif.message}
                             </p>
-                            <div className="flex gap-2 pt-1.5">
+                            <div className="flex gap-2 pt-1.5 items-center">
                               {!notif.read && (
                                 <button
                                   onClick={() => {
                                     setNotifications(notifications.map(n => n.id === notif.id ? {...n, read: true} : n));
                                   }}
-                                  className="text-[9px] text-emerald-700 hover:underline font-bold"
+                                  className="text-[9px] text-emerald-700 hover:underline font-bold transition-all"
                                 >
                                   Mark Read
                                 </button>
                               )}
-                              <button
-                                onClick={() => {
-                                  setNotifications(notifications.filter(n => n.id !== notif.id));
-                                }}
-                                className="text-[9px] text-slate-400 hover:text-rose-500 font-bold ml-auto animate-fadeIn"
-                              >
-                                Delete
-                              </button>
+                              {pendingDeleteNotifId === notif.id ? (
+                                <div className="flex items-center gap-1.5 ml-auto animate-fadeIn bg-rose-50 dark:bg-rose-950/20 px-1.5 py-0.5 rounded border border-rose-100 dark:border-rose-900/30">
+                                  <span className="text-[9px] font-black text-rose-700 dark:text-rose-300 uppercase leading-none">Delete?</span>
+                                  <button
+                                    onClick={() => {
+                                      setNotifications(notifications.filter(n => n.id !== notif.id));
+                                      setPendingDeleteNotifId(null);
+                                    }}
+                                    className="text-[8px] text-white bg-rose-600 hover:bg-rose-700 px-1.5 py-0.5 rounded font-bold cursor-pointer transition-all"
+                                  >
+                                    Yes
+                                  </button>
+                                  <button
+                                    onClick={() => setPendingDeleteNotifId(null)}
+                                    className="text-[8px] text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 px-1.5 py-0.5 rounded font-bold cursor-pointer transition-all"
+                                  >
+                                    No
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={() => setPendingDeleteNotifId(notif.id)}
+                                  className="text-[9px] text-slate-400 hover:text-rose-500 font-bold ml-auto transition-all duration-75"
+                                >
+                                  Delete
+                                </button>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -1321,13 +1483,34 @@ export default function App() {
                   </div>
 
                   {/* Footer */}
-                  <div className="p-2.5 bg-slate-50 border-t border-slate-100 text-center">
-                    <button
-                      onClick={() => setNotifications([])}
-                      className="text-[10px] text-slate-500 hover:text-slate-800 font-bold uppercase tracking-wider"
-                    >
-                      Clear Alarm History ({notifications.length})
-                    </button>
+                  <div className="p-2.5 bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800/80 text-center min-h-[40px] flex items-center justify-center">
+                    {showClearAllNotifsConfirm ? (
+                      <div className="flex items-center justify-center gap-2 animate-fadeIn">
+                        <span className="text-[9px] font-extrabold text-rose-700 dark:text-rose-400 uppercase tracking-wider">Are you sure you want to clear all?</span>
+                        <button
+                          onClick={() => {
+                            setNotifications([]);
+                            setShowClearAllNotifsConfirm(false);
+                          }}
+                          className="text-[9px] text-white bg-rose-600 hover:bg-rose-700 px-2.5 py-1 rounded font-black transition-all cursor-pointer"
+                        >
+                          Yes, Clear All
+                        </button>
+                        <button
+                          onClick={() => setShowClearAllNotifsConfirm(false)}
+                          className="text-[9px] text-slate-700 dark:text-slate-300 bg-slate-250 dark:bg-slate-800 hover:bg-slate-350 px-2.5 py-1 rounded font-black transition-all cursor-pointer"
+                        >
+                          No
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setShowClearAllNotifsConfirm(true)}
+                        className="text-[10px] text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 font-bold uppercase tracking-wider cursor-pointer"
+                      >
+                        Clear Alarm History ({notifications.length})
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
@@ -1335,14 +1518,35 @@ export default function App() {
 
             {/* User Indicator / Account Switcher */}
             <div className="flex items-center gap-3 border-l border-slate-200 dark:border-slate-800 pl-4 bg-transparent select-none shrink-0">
-              <button
-                onClick={handleResetAsNewUser}
-                className="hidden sm:flex items-center gap-1 bg-slate-50 hover:bg-rose-50 hover:text-rose-600 dark:bg-slate-150 dark:hover:bg-rose-950/30 text-slate-500 border border-slate-200 dark:border-slate-150 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer"
-                title="Restart application as a new user with onboarding wizard"
-              >
-                <RefreshCw className="w-2.5 h-2.5 shrink-0" />
-                Reset App State
-              </button>
+              {showResetAppConfirm ? (
+                <div className="hidden sm:flex items-center gap-1.5 animate-fadeIn bg-rose-50 dark:bg-rose-950/20 px-2.5 py-1.5 rounded-full border border-rose-100 dark:border-rose-900/30">
+                  <span className="text-[9px] font-black text-rose-700 dark:text-rose-300 uppercase leading-none">Reset workspace?</span>
+                  <button
+                    onClick={() => {
+                      handleResetAsNewUser();
+                      setShowResetAppConfirm(false);
+                    }}
+                    className="text-[9px] text-white bg-rose-600 hover:bg-rose-700 px-2 py-0.5 rounded-full font-bold cursor-pointer transition-all"
+                  >
+                    Yes
+                  </button>
+                  <button
+                    onClick={() => setShowResetAppConfirm(false)}
+                    className="text-[9px] text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 px-2 py-0.5 rounded-full font-bold cursor-pointer transition-all"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setShowResetAppConfirm(true)}
+                  className="hidden sm:flex items-center gap-1 bg-slate-50 hover:bg-rose-50 hover:text-rose-600 dark:bg-slate-150 dark:hover:bg-rose-950/30 text-slate-500 border border-slate-200 dark:border-slate-150 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer"
+                  title="Restart application as a new user with onboarding wizard"
+                >
+                  <RefreshCw className="w-2.5 h-2.5 shrink-0" />
+                  Reset App State
+                </button>
+              )}
 
               {isDemoMode ? (
                 <button
@@ -1391,7 +1595,7 @@ export default function App() {
         </header>
 
         {/* SUB VIEW SCROLLER GRID */}
-        <div className="flex-1 overflow-y-auto p-6 lg:p-8">
+        <div className={`flex-1 p-6 lg:p-8 min-h-0 flex flex-col ${activeTab === "chatbot" ? "lg:overflow-hidden overflow-y-auto lg:h-full" : "overflow-y-auto"}`}>
           
           {/* Active Tab Dispatcher */}
           {activeTab === "dashboard" && (

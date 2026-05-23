@@ -48,6 +48,7 @@ export const LoggingTab: React.FC<LoggingTabProps> = ({
   const [avgHumidity, setAvgHumidity] = useState<number>(65);
   const [notes, setNotes] = useState("");
   const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const selectedBatch = batches.find((b) => b.id === selectedBatchId);
   const isLayer = selectedBatch?.purpose === "Layers" || selectedBatch?.purpose === "Dual-Purpose";
@@ -452,13 +453,34 @@ export const LoggingTab: React.FC<LoggingTabProps> = ({
 
               {/* Action buttons */}
               <div className="flex justify-end pt-2 sm:pt-0 border-t border-slate-50 sm:border-0 shrink-0">
-                <button
-                  onClick={() => onDeleteRecord(rec.id)}
-                  className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-rose-600 hover:text-white hover:bg-rose-600 border border-rose-100/95 hover:border-rose-600 px-3.5 py-2 rounded-xl transition-all cursor-pointer bg-rose-50/50 select-none"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  Delete Entry
-                </button>
+                {pendingDeleteId === rec.id ? (
+                  <div className="flex items-center gap-1.5 animate-fadeIn">
+                    <span className="text-[10px] font-bold text-rose-700 uppercase bg-rose-50 border border-rose-100 px-2 py-1 rounded-md leading-none">Are you sure?</span>
+                    <button
+                      onClick={() => {
+                        onDeleteRecord(rec.id);
+                        setPendingDeleteId(null);
+                      }}
+                      className="text-[10px] sm:text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 px-3.5 py-2 rounded-xl transition-all cursor-pointer select-none"
+                    >
+                      Yes, Delete
+                    </button>
+                    <button
+                      onClick={() => setPendingDeleteId(null)}
+                      className="text-[10px] sm:text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 px-3.5 py-2 rounded-xl transition-all cursor-pointer select-none"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setPendingDeleteId(rec.id)}
+                    className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-rose-600 hover:text-white hover:bg-rose-600 border border-rose-100/95 hover:border-rose-600 px-3.5 py-2 rounded-xl transition-all cursor-pointer bg-rose-50/50 select-none"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    Delete Entry
+                  </button>
+                )}
               </div>
 
             </div>

@@ -34,6 +34,7 @@ export const BatchesTab: React.FC<BatchesTabProps> = ({
 }) => {
   const [isRegistering, setIsRegistering] = useState(false);
   const [editingBatch, setEditingBatch] = useState<FlockBatch | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   // Form State
   const [name, setName] = useState("");
@@ -486,13 +487,34 @@ export const BatchesTab: React.FC<BatchesTabProps> = ({
                     >
                       <PenTool className="w-3.5 h-3.5" />
                     </button>
-                    <button
-                      onClick={() => onDeleteBatch(b.id)}
-                      className="p-2 text-rose-500 hover:text-rose-700 bg-white hover:bg-rose-50 border border-rose-200 rounded-xl transition-colors cursor-pointer"
-                      title="Delete flock record"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    {pendingDeleteId === b.id ? (
+                      <div className="flex items-center gap-1 bg-rose-50 border border-rose-100 rounded-xl px-1.5 py-1 animate-fadeIn">
+                        <span className="text-[10px] font-bold text-rose-700 uppercase px-1 leading-none">Delete item?</span>
+                        <button
+                          onClick={() => {
+                            onDeleteBatch(b.id);
+                            setPendingDeleteId(null);
+                          }}
+                          className="text-[10px] sm:text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 px-2 py-1 rounded-lg transition-all cursor-pointer select-none"
+                        >
+                          Yes
+                        </button>
+                        <button
+                          onClick={() => setPendingDeleteId(null)}
+                          className="text-[10px] sm:text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-250 px-2 py-1 rounded-lg transition-all cursor-pointer select-none"
+                        >
+                          No
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setPendingDeleteId(b.id)}
+                        className="p-2 text-rose-500 hover:text-rose-700 bg-white hover:bg-rose-50 border border-rose-200 rounded-xl transition-colors cursor-pointer"
+                        title="Delete flock record"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                   </div>
                 </div>
 

@@ -136,7 +136,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
         <div id="anomalies-list" className="space-y-3">
           <h3 className="text-sm font-semibold tracking-wider text-rose-800 uppercase flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-rose-600 animate-pulse" />
-            Active Bio-Security Notifications
+            Active Advisories & Alarms
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {anomalies.map((anno, index) => (
