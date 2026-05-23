@@ -770,7 +770,14 @@ export default function App() {
       });
 
       if (!res.ok) {
-        throw new Error("Clinical assistant timed out.");
+        let errorMsg = "Clinical assistant timed out or failed to parse request.";
+        try {
+          const errData = await res.json();
+          if (errData && errData.error) {
+            errorMsg = errData.error;
+          }
+        } catch (_) {}
+        throw new Error(errorMsg);
       }
 
       const data = await res.json();
@@ -783,10 +790,11 @@ export default function App() {
       setChatMessages((prev) => [...prev, modelMsg]);
     } catch (err: any) {
       console.error("AI request error:", err);
+      const userFriendlyError = err.message || "Connection timed out.";
       const modelMsg: ChatMessage = {
         id: `msg-${Date.now()}-m`,
         role: "model",
-        content: "⚠️ **Network Diagnostics Notice:** I experienced difficulty reaching the backend pre-screening model. \n\n**Immediate Biosecurity Actions for Symptoms:**\n1. Feed anticoccidial electrolytes (Amprolium class) representing coccidiosis.\n2. Quarantine all lethargic, gasping, or ruffling birds adjacent to Pen 2 / 5 immediately.\n3. Disinfect footbaths recursively at all entrance lines.\n\nContact the National Poultry Research center at **+233 (0) 244 837 581** for field backup.",
+        content: `⚠️ **Clinical Assistant Diagnostic Issue:** ${userFriendlyError}\n\n**Immediate Biosecurity Actions for Symptoms:**\n1. Feed anticoccidial electrolytes (Amprolium class) representing coccidiosis.\n2. Quarantine all lethargic, gasping, or ruffling birds adjacent to Pen 2 / 5 immediately.\n3. Disinfect footbaths recursively at all entrance lines.\n\nContact the National Poultry Research center at **+233 (0) 244 837 581** for field backup.`,
         timestamp: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
       };
       setChatMessages((prev) => [...prev, modelMsg]);

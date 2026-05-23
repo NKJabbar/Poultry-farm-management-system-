@@ -10,24 +10,39 @@ const PORT = 3000;
 
 app.use(express.json());
 
-// Lazy-initialized Gemini Client
-let aiClient: GoogleGenAI | null = null;
-function getGeminiClient(): GoogleGenAI {
-  if (!aiClient) {
-    const key = process.env.GEMINI_API_KEY;
-    if (!key) {
-      throw new Error("GEMINI_API_KEY environment variable is required but missing.");
-    }
-    aiClient = new GoogleGenAI({
-      apiKey: key,
-      httpOptions: {
-        headers: {
-          "User-Agent": "aistudio-build",
-        },
+// Helper to construct a GoogleGenAI client
+function createGeminiClient(apiKey: string): GoogleGenAI {
+  return new GoogleGenAI({
+    apiKey: apiKey,
+    httpOptions: {
+      headers: {
+        "User-Agent": "aistudio-build",
       },
-    });
-  }
-  return aiClient;
+    },
+  });
+}
+
+// Handler helper to execute the actual chat with a specific key
+async function runGeminiChat(apiKey: string, message: string, history: any[]): Promise<string> {
+  const ai = createGeminiClient(apiKey);
+  const chatHistory = history ? history.map((item: any) => ({
+    role: item.role === "user" ? "user" : "model",
+    parts: [{ text: item.content }],
+  })) : [];
+
+  const chat = ai.chats.create({
+    model: "gemini-3.5-flash",
+    config: {
+      systemInstruction: POULTRY_VET_CONTEXT,
+    },
+    history: chatHistory,
+  });
+
+  const response = await chat.sendMessage({
+    message: message,
+  });
+
+  return response.text;
 }
 
 // Veterinary Knowledge Base context for typical Ghanaian poultry diseases
@@ -232,7 +247,7 @@ I am currently running in **offline-first pre-screening fallback mode** (ready t
   // If we matched some disease symptoms, compile a gorgeous clinical pre-screening response!
   if (matchedDiseases.length > 0) {
     return `### 🩺 FlockIntel Veterinary Pre-Screening Report
-*Running in local-expert backup mode (no API key detected).*
+*Running in clinical pre-screening fallback mode.*
 
 - **Potential Disease(s) Identified**: ${matchedDiseases.join(", ")}
 - **Core Clinical Symptoms Matched**: ${symptomsMatched.join("; ")}
@@ -258,18 +273,16 @@ Please contact the National Poultries Directorate or prompt your district MoFA e
   return `### 💡 FlockIntel Advisory Notice
 I noticed you are asking about general poultry husbandry, feeding regimes, or non-sickness topics, or I couldn't match specific clinical signs.
 
-Since I am presently running in **local-expert backup mode** (no Gemini API key detected), I am limited to matching clinical sickness symptoms. You can trigger targeted disease guidelines by asking about specific symptoms, such as:
+I am running in clinical pre-screening fallback mode. You can trigger targeted disease guidelines by asking about specific symptoms, such as:
 - *"My birds have watery green droppings and twisted necks"* (Newcastle pre-screen)
 - *"What should I do for bloody diarrhea and ruffled feathers?"* (Coccidiosis pre-screen)
 - *"They have swollen eyes, runny noses, and sneezing"* (Infectious Coryza pre-screen)
 - *"There are black scabs on their combs and eyelids"* (Fowl Pox pre-screen)
 
 **General Farm Quick Checks:**
-- Make sure feed silos are at least 20% full.
+- Make sure feed silos are at least 15% full.
 - Ensure automated sensors monitor temperature within the 21-27°C target.
-- Clean and sanitize water drinkers daily to prevent Gumboro and other waterborne bacteria.
-
-*To unlock full open-domain conversations, configure your Gemini API Key in the **Settings > Secrets** panel.*`;
+- Clean and sanitize water drinkers daily to prevent pathogen transmission.`;
 }
 
 // API Endpoints
@@ -279,43 +292,36 @@ app.post("/api/chat", async (req, res) => {
     return res.status(400).json({ error: "Message is required." });
   }
 
-  try {
-    // Check if Gemini API key exists, otherwise fall back to local rule-based advisor seamlessly
-    if (!process.env.GEMINI_API_KEY) {
-      console.log("No GEMINI_API_KEY detected. Using clinical local getOfflineResponse fallback.");
-      const reply = getOfflineResponse(message);
+  const userKey = process.env.GEMINI_API_KEY;
+  const backupKey = "AIzaSyDo7mC7yLyp0ZlwEBWCuXs_ZiAwezobzP0";
+
+  // Try 1: Try user's GEMINI_API_KEY if present
+  if (userKey) {
+    try {
+      console.log("Trying Gemini chat with user's configured GEMINI_API_KEY...");
+      const reply = await runGeminiChat(userKey, message, history);
       return res.json({ reply });
+    } catch (err: any) {
+      console.error("User GEMINI_API_KEY call failed. Attempting backup key fallback.", err.message);
     }
+  } else {
+    console.log("No custom user GEMINI_API_KEY detected in env. Swapping to backup key...");
+  }
 
-    const ai = getGeminiClient();
-
-    // Map conversation history to the format required by GoogleGenAI SDK chats
-    // The history should be array of { role: 'user' | 'model', parts: [{ text: ... }] }
-    const chatHistory = history ? history.map((item: any) => ({
-      role: item.role === "user" ? "user" : "model",
-      parts: [{ text: item.content }],
-    })) : [];
-
-    const chat = ai.chats.create({
-      model: "gemini-3.5-flash",
-      config: {
-        systemInstruction: POULTRY_VET_CONTEXT,
-      },
-      history: chatHistory,
+  // Try 2: Try the backup API key provided by the user
+  try {
+    console.log("Trying Gemini chat with backup API Key...");
+    const reply = await runGeminiChat(backupKey, message, history);
+    return res.json({ reply });
+  } catch (err: any) {
+    console.error("Backup API Key call also failed. Falling back to offline local rule-based diagnostics.", err.message);
+    
+    const details = err.message || "Network Error";
+    // If BOTH the user key and the backup key failed, we return the offline fallback with a diagnostic notice
+    const fallbackMessage = getOfflineResponse(message);
+    return res.json({
+      reply: `⚠️ **Clinical Advisor Diagnostic Alert:** Online AI models were temporarily unreachable (${details}). Running offline-first local diagnostics:\n\n${fallbackMessage}`
     });
-
-    const response = await chat.sendMessage({
-      message: message,
-    });
-
-    res.json({
-      reply: response.text,
-    });
-  } catch (error: any) {
-    console.error("Gemini API Error in backend, falling back to local pre-screening:", error);
-    // Even if Gemini throws an error (quota limits, token issues), fall back safely so chatbot never breaks
-    const reply = getOfflineResponse(message);
-    res.json({ reply });
   }
 });
 
