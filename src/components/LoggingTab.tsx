@@ -350,7 +350,7 @@ export const LoggingTab: React.FC<LoggingTabProps> = ({
                       Suggested Action
                     </span>
                     <p className="text-[11px] text-emerald-300 leading-relaxed">
-                      Quarantine affected birds immediately. Ensure personnel disinfect hands and boots. Use the button below to feed this diagnostic directly to our AI Veterinary advisor.
+                      Quarantine affected birds immediately. Ensure personnel disinfect hands and boots. Use the button below to feed this diagnostic directly to FlockIntel AI.
                     </p>
                   </div>
                   
@@ -362,7 +362,7 @@ export const LoggingTab: React.FC<LoggingTabProps> = ({
                     className="w-full py-2 bg-emerald-400 hover:bg-emerald-300 text-emerald-950 text-xs font-bold rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    Query AI Vet with Symptoms
+                    Query FlockIntel AI with Symptoms
                   </button>
                 </div>
               ) : (

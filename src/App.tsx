@@ -886,7 +886,7 @@ export default function App() {
                 className={`w-full text-left p-4 rounded-2xl border-2 transition-all flex items-start space-x-3.5 cursor-pointer select-none ${
                   prefMode === "demo"
                     ? "border-emerald-600 dark:border-emerald-500 bg-emerald-50/15 dark:bg-emerald-950/5 ring-1 ring-emerald-500/20"
-                    : "border-slate-200/80 dark:border-slate-800 hover:border-slate-355 dark:hover:border-slate-700 bg-transparent"
+                    : "border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-transparent"
                 }`}
               >
                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 ${
@@ -917,7 +917,7 @@ export default function App() {
                 className={`w-full text-left p-4 rounded-2xl border-2 transition-all flex items-start space-x-3.5 cursor-pointer select-none ${
                   prefMode === "clean"
                     ? "border-emerald-600 dark:border-emerald-500 bg-emerald-50/15 dark:bg-emerald-950/5 ring-1 ring-emerald-500/20"
-                    : "border-slate-200/80 dark:border-slate-800 hover:border-slate-355 dark:hover:border-slate-700 bg-transparent"
+                    : "border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-transparent"
                 }`}
               >
                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 ${
@@ -972,19 +972,20 @@ export default function App() {
       )}
       
       {/* SIDEBAR */}
-      <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-slate-900 border-r border-slate-850 text-slate-300 flex flex-col justify-between transform transition-transform duration-300 lg:relative lg:translate-x-0 ${
+      <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-850 text-slate-600 dark:text-slate-300 flex flex-col justify-between transform transition-transform duration-300 lg:relative lg:translate-x-0 ${
         mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
       }`}>
         
         <div>
           {/* Logo Brand Bar */}
-          <div className="p-6 flex items-center justify-between border-b border-slate-850">
-            <FlockIntelLogo size="md" showText={true} textLight={true} />
+          <div className="p-6 flex items-center justify-between border-b border-slate-150 dark:border-slate-850">
+            <FlockIntelLogo size="md" showText={true} textLight={darkMode} />
 
             {/* Mobile close menu */}
             <button 
               onClick={() => setMobileMenuOpen(false)}
-              className="lg:hidden p-1.5 bg-slate-850 hover:bg-slate-800 text-white rounded-lg cursor-pointer transition-colors"
+              className="lg:hidden p-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-250/20 dark:border-slate-700 text-slate-600 dark:text-slate-200 rounded-lg cursor-pointer transition-all duration-150"
+              title="Close menu"
             >
               <X className="w-4 h-4" />
             </button>
@@ -996,8 +997,8 @@ export default function App() {
               onClick={() => { setActiveTab("dashboard"); setMobileMenuOpen(false); }}
               className={`w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl font-sans font-bold text-xs tracking-wide uppercase transition-all duration-150 cursor-pointer text-left ${
                 activeTab === "dashboard"
-                  ? "bg-slate-800 text-white shadow-xs border-r-4 border-emerald-500"
-                  : "text-slate-400 hover:bg-slate-850 hover:text-white"
+                  ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border-r-4 border-emerald-600 dark:border-emerald-500"
+                  : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850/60 hover:text-slate-800 dark:hover:text-white"
               }`}
             >
               <Activity className="w-4 h-4 shrink-0 text-emerald-500" />
@@ -1008,8 +1009,8 @@ export default function App() {
               onClick={() => { setActiveTab("batches"); setMobileMenuOpen(false); }}
               className={`w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl font-sans font-bold text-xs tracking-wide uppercase transition-all duration-150 cursor-pointer text-left ${
                 activeTab === "batches"
-                  ? "bg-slate-800 text-white shadow-xs border-r-4 border-emerald-500"
-                  : "text-slate-400 hover:bg-slate-850 hover:text-white"
+                  ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border-r-4 border-emerald-600 dark:border-emerald-500"
+                  : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850/60 hover:text-slate-800 dark:hover:text-white"
               }`}
             >
               <Layers className="w-4 h-4 shrink-0 text-emerald-500" />
@@ -1020,8 +1021,8 @@ export default function App() {
               onClick={() => { setActiveTab("logging"); setMobileMenuOpen(false); }}
               className={`w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl font-sans font-bold text-xs tracking-wide uppercase transition-all duration-150 cursor-pointer text-left ${
                 activeTab === "logging"
-                  ? "bg-slate-800 text-white shadow-xs border-r-4 border-emerald-500"
-                  : "text-slate-400 hover:bg-slate-850 hover:text-white"
+                  ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border-r-4 border-emerald-600 dark:border-emerald-500"
+                  : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850/60 hover:text-slate-800 dark:hover:text-white"
               }`}
             >
               <ClipboardCheck className="w-4 h-4 shrink-0 text-emerald-500" />
@@ -1032,8 +1033,8 @@ export default function App() {
               onClick={() => { setActiveTab("analytics"); setMobileMenuOpen(false); }}
               className={`w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl font-sans font-bold text-xs tracking-wide uppercase transition-all duration-150 cursor-pointer text-left ${
                 activeTab === "analytics"
-                  ? "bg-slate-800 text-white shadow-xs border-r-4 border-emerald-500"
-                  : "text-slate-400 hover:bg-slate-850 hover:text-white"
+                  ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border-r-4 border-emerald-600 dark:border-emerald-500"
+                  : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850/60 hover:text-slate-800 dark:hover:text-white"
               }`}
             >
               <BarChart3 className="w-4 h-4 shrink-0 text-emerald-500" />
@@ -1044,8 +1045,8 @@ export default function App() {
               onClick={() => { setActiveTab("inventory"); setMobileMenuOpen(false); }}
               className={`w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl font-sans font-bold text-xs tracking-wide uppercase transition-all duration-150 cursor-pointer text-left ${
                 activeTab === "inventory"
-                  ? "bg-slate-800 text-white shadow-xs border-r-4 border-emerald-500"
-                  : "text-slate-400 hover:bg-slate-850 hover:text-white"
+                  ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border-r-4 border-emerald-600 dark:border-emerald-500"
+                  : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850/60 hover:text-slate-800 dark:hover:text-white"
               }`}
             >
               <Package className="w-4 h-4 shrink-0 text-emerald-500" />
@@ -1063,8 +1064,8 @@ export default function App() {
               onClick={() => { setActiveTab("chatbot"); setMobileMenuOpen(false); }}
               className={`w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl font-sans font-bold text-xs tracking-wide uppercase transition-all duration-150 cursor-pointer text-left ${
                 activeTab === "chatbot"
-                  ? "bg-slate-800 text-white shadow-xs border-r-4 border-emerald-500"
-                  : "text-slate-400 hover:bg-slate-850 hover:text-white"
+                  ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border-r-4 border-emerald-600 dark:border-emerald-500"
+                  : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850/60 hover:text-slate-800 dark:hover:text-white"
               }`}
             >
               <HeartPulse className="w-4 h-4 shrink-0 text-emerald-500" />
@@ -1077,20 +1078,20 @@ export default function App() {
         </div>
 
         {/* Feed Capacity Storage Bottom Widget */}
-        <div id="feed-capacity-sidebar-widget" className="p-4 border-t border-slate-850 bg-slate-950/30">
-          <div className="bg-slate-850/80 p-4 rounded-2xl border border-slate-800">
+        <div id="feed-capacity-sidebar-widget" className="p-4 border-t border-slate-150 dark:border-slate-850 bg-slate-50/30 dark:bg-slate-950/30">
+          <div className="bg-white dark:bg-slate-850/80 p-4 rounded-2xl border border-slate-150 dark:border-slate-800 shadow-xs">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">Feed Capacity</p>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-black tracking-widest">Feed Capacity</p>
               <button 
                 onClick={handleRefillFeed}
                 title="Refill 5.0 Tons Feed"
-                className="text-[10px] font-bold text-emerald-400 hover:text-emerald-300 hover:underline cursor-pointer flex items-center gap-1"
+                className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 hover:underline cursor-pointer flex items-center gap-1"
               >
                 Refill Feed
               </button>
             </div>
             
-            <div className="w-full bg-slate-750 h-2.5 rounded-full overflow-hidden">
+            <div className="w-full bg-slate-100 dark:bg-slate-750 h-2.5 rounded-full overflow-hidden">
               <div 
                 className={`h-full rounded-full transition-all duration-500 ${
                   siloPercent < 25 ? "bg-rose-500" : siloPercent < 50 ? "bg-amber-500" : "bg-emerald-500"
@@ -1100,8 +1101,8 @@ export default function App() {
             </div>
 
             <div className="flex items-center justify-between mt-2">
-              <p className="text-[11px] text-white font-bold">{siloPercent}% filled</p>
-              <p className="text-[10px] text-slate-400">{(siloLevel / 1000).toFixed(2)} Tons Left</p>
+              <p className="text-[11px] text-slate-900 dark:text-white font-bold">{siloPercent}% filled</p>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400">{(siloLevel / 1000).toFixed(2)} Tons Left</p>
             </div>
           </div>
         </div>
@@ -1136,31 +1137,33 @@ export default function App() {
             {/* Hamburger menu trigger */}
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
+              className="lg:hidden p-1.5 hover:bg-slate-100 dark:hover:bg-slate-150 rounded-lg text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
             >
               <Menu className="w-5 h-5" />
             </button>
 
-            {/* FlockIntel Logo displayed permanently on the main bar for all devices */}
-            <div className="flex items-center gap-2">
+            {/* Mobile-only brand logo */}
+            <div className="flex items-center gap-2 lg:hidden">
               <FlockIntelLogo size="md" showText={true} />
-              <span className="text-slate-200 dark:text-slate-700 hidden sm:inline">|</span>
-              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 hidden sm:inline uppercase tracking-wider">Greater Accra Section A</span>
             </div>
+
+            {/* Desktop-only Active View Title */}
+            <h1 className="hidden lg:block text-sm font-bold text-slate-800 dark:text-white font-display uppercase tracking-wider">
+              {activeTab === "dashboard" ? "Performance Dashboard" :
+               activeTab === "batches" ? "Flock Batches" :
+               activeTab === "logging" ? "Medical Logs & Records" :
+               activeTab === "analytics" ? "Analytics & Insights" :
+               "FlockIntel Advisor Chat"}
+            </h1>
           </div>
 
           <div className="flex items-center space-x-4">
             
             {/* Bio Alert Flag */}
-            {recentLosses.length > 0 ? (
-              <div className="flex items-center space-x-2 bg-rose-50 text-rose-600 px-3 py-1 rounded-full text-xs font-bold border border-rose-100 animate-pulse">
-                <span className="w-1.5 h-1.5 bg-rose-500 rounded-full"></span>
+            {recentLosses.length > 0 && (
+              <div className="flex items-center space-x-2 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 px-3 py-1 rounded-full text-xs font-bold border border-rose-100 dark:border-rose-900/30 animate-pulse">
+                <span className="w-1.5 h-1.5 bg-rose-500 dark:bg-rose-400 rounded-full"></span>
                 <span>Critical: High Mortality</span>
-              </div>
-            ) : (
-              <div className="hidden sm:flex items-center space-x-2 bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold border border-emerald-100">
-                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-                <span>Biosecurity Clear</span>
               </div>
             )}
 
@@ -1177,7 +1180,7 @@ export default function App() {
             {/* Dark Mode Toggle */}
             <button
               onClick={() => setDarkMode(!darkMode)}
-              className="p-2 rounded-full border transition-all cursor-pointer flex items-center justify-center bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300"
+              className="p-2 rounded-full border transition-all cursor-pointer flex items-center justify-center bg-slate-50 hover:bg-slate-100 dark:bg-slate-100 dark:hover:bg-slate-150 border-slate-200 dark:border-slate-150 text-slate-700 dark:text-slate-300"
               title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
             >
               {darkMode ? (
@@ -1326,7 +1329,7 @@ export default function App() {
             <div className="flex items-center gap-3 border-l border-slate-200 dark:border-slate-800 pl-4 bg-transparent select-none shrink-0">
               <button
                 onClick={handleResetAsNewUser}
-                className="hidden sm:flex items-center gap-1 bg-slate-50 hover:bg-rose-50 hover:text-rose-600 dark:bg-slate-800 dark:hover:bg-rose-950/30 text-slate-500 border border-slate-200 dark:border-slate-700 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer"
+                className="hidden sm:flex items-center gap-1 bg-slate-50 hover:bg-rose-50 hover:text-rose-600 dark:bg-slate-150 dark:hover:bg-rose-950/30 text-slate-500 border border-slate-200 dark:border-slate-150 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer"
                 title="Restart application as a new user with onboarding wizard"
               >
                 <RefreshCw className="w-2.5 h-2.5 shrink-0" />
@@ -1339,13 +1342,13 @@ export default function App() {
                   className="hidden md:flex items-center gap-1.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/55 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-900/30 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer"
                   title="Switch back to your live account data"
                 >
-                  <span className="w-1.5 h-1.5 bg-rose-505 rounded-full animate-ping"></span>
+                  <span className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-ping"></span>
                   Active Demo
                 </button>
               ) : (
                 <button
                   onClick={handleSwitchToDemoMode}
-                  className="hidden md:flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-350 border border-slate-200 dark:border-slate-750 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer"
+                  className="hidden md:flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-100 dark:hover:bg-slate-150 text-slate-600 dark:text-slate-350 border border-slate-200 dark:border-slate-150 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer"
                   title="Load the simulated sandbox data"
                 >
                   <Sparkles className="w-3 h-3 text-slate-400 dark:text-slate-500" />
@@ -1358,8 +1361,8 @@ export default function App() {
                   id="user-avatar-initials"
                   className={`w-8 h-8 rounded-full font-sans font-bold text-xs flex items-center justify-center border shadow-inner ${
                     isDemoMode 
-                      ? "bg-amber-100 dark:bg-amber-950/55 text-amber-800 dark:text-amber-350 border-amber-500/20" 
-                      : "bg-emerald-100 dark:bg-emerald-950/55 text-emerald-800 dark:text-emerald-350 border-emerald-500/10"
+                      ? "bg-amber-100 text-amber-950 border-amber-300 demo-avatar" 
+                      : "bg-emerald-100 text-emerald-950 border-emerald-300"
                   }`}
                 >
                   {isDemoMode ? "DS" : "FL"}
@@ -1456,43 +1459,43 @@ export default function App() {
           }}
           className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 backdrop-blur-md p-4 overflow-y-auto cursor-pointer"
         >
-          <div className="bg-white rounded-[32px] shadow-2xl border border-slate-100 w-full max-w-lg overflow-hidden p-8 animate-fadeIn relative cursor-default">
+          <div className="bg-white dark:bg-slate-900 rounded-[32px] shadow-2xl border border-slate-100 dark:border-slate-800/80 w-full max-w-lg overflow-hidden p-8 animate-fadeIn relative cursor-default">
             <button 
               onClick={() => { setShowTourOnly(false); setTourStep(0); }}
-              className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-800 rounded-2xl hover:bg-slate-50 cursor-pointer transition-colors"
+              className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/60 cursor-pointer transition-colors"
               title="Close Tour"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="space-y-6">
-              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                <Sparkles className="w-5 h-5 text-emerald-600 shrink-0" />
-                <h3 className="text-lg font-display font-medium text-slate-900 leading-none">FlockIntel System Tour</h3>
+              <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
+                <Sparkles className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <h3 className="text-lg font-display font-medium text-slate-900 dark:text-slate-105 leading-none">FlockIntel System Tour</h3>
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] text-emerald-600 uppercase font-extrabold tracking-widest block">Core Modules</span>
-                  <span className="text-[10px] bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full font-bold">Step {tourStep + 1} of {tourSteps.length}</span>
+                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 uppercase font-extrabold tracking-widest block">Core Modules</span>
+                  <span className="text-[10px] bg-slate-100 dark:bg-slate-150 text-slate-600 dark:text-slate-300 px-2.5 py-0.5 rounded-full font-bold">Step {tourStep + 1} of {tourSteps.length}</span>
                 </div>
 
-                <div className="p-6 bg-slate-50 rounded-2xl border border-slate-150 flex flex-col items-center text-center space-y-4 shadow-inner">
-                  <div className="p-4 bg-white rounded-2xl shadow-xs border border-slate-100">
+                <div className="p-6 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-150 dark:border-slate-850/60 flex flex-col items-center text-center space-y-4 shadow-inner">
+                  <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-100 dark:border-slate-800">
                     {tourSteps[tourStep].icon}
                   </div>
-                  <h4 className="text-xs font-black text-slate-950 uppercase tracking-wider">{tourSteps[tourStep].title}</h4>
-                  <p className="text-xs text-slate-600 leading-relaxed font-sans max-w-sm">
+                  <h4 className="text-xs font-black text-slate-950 dark:text-slate-200 uppercase tracking-wider">{tourSteps[tourStep].title}</h4>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-sans max-w-sm">
                     {tourSteps[tourStep].description}
                   </p>
                 </div>
               </div>
 
               {/* Developer Sandbox helper */}
-              <div id="tour-demo-loader-banner" className="bg-emerald-50/70 border border-emerald-150/60 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-inner">
+              <div id="tour-demo-loader-banner" className="bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-150/60 dark:border-emerald-900/30 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-inner">
                 <div className="space-y-0.5 text-center sm:text-left">
-                  <span className="text-[10px] font-extrabold text-emerald-700 uppercase tracking-widest block">Sandbox Simulator</span>
-                  <p className="text-[11px] text-slate-500 font-sans leading-relaxed">
+                  <span className="text-[10px] font-extrabold text-emerald-700 dark:text-emerald-450 uppercase tracking-widest block font-sans">Sandbox Simulator</span>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-sans leading-relaxed">
                     Instantly populate dashboard charts with 15 days of telemetry history.
                   </p>
                 </div>
@@ -1508,12 +1511,12 @@ export default function App() {
                 </button>
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+              <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
                 <button
                   disabled={tourStep === 0}
                   onClick={() => setTourStep(prev => prev - 1)}
                   className={`flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider ${
-                    tourStep === 0 ? "text-slate-350 cursor-not-allowed" : "text-slate-600 hover:text-slate-950 cursor-pointer"
+                    tourStep === 0 ? "text-slate-300 dark:text-slate-700 cursor-not-allowed" : "text-slate-600 hover:text-slate-950 dark:text-slate-450 dark:hover:text-white cursor-pointer"
                   }`}
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -1523,10 +1526,10 @@ export default function App() {
                 {tourStep < tourSteps.length - 1 ? (
                   <button
                     onClick={() => setTourStep(prev => prev + 1)}
-                    className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-850 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-all shadow-xs cursor-pointer"
+                    className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-850 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-all shadow-xs cursor-pointer"
                   >
                     Next Step
-                    <ArrowRight className="w-4 h-4 text-emerald-400" />
+                    <ArrowRight className="w-4 h-4 text-emerald-400 darK:text-emerald-300" />
                   </button>
                 ) : (
                   <button
