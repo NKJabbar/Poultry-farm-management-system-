@@ -293,34 +293,37 @@ app.post("/api/chat", async (req, res) => {
   }
 
   const userKey = process.env.GEMINI_API_KEY;
-  const backupKey = "AIzaSyDo7mC7yLyp0ZlwEBWCuXs_ZiAwezobzP0";
 
-  // Try 1: Try user's GEMINI_API_KEY if present
   if (userKey) {
     try {
       console.log("Trying Gemini chat with user's configured GEMINI_API_KEY...");
       const reply = await runGeminiChat(userKey, message, history);
       return res.json({ reply });
     } catch (err: any) {
-      console.error("User GEMINI_API_KEY call failed. Attempting backup key fallback.", err.message);
+      const errMsg = err.message || "";
+      console.error("Gemini API call failed:", errMsg);
+      
+      const isLeakedMsg = errMsg.includes("leaked") || errMsg.includes("leak") || errMsg.includes("403") || errMsg.includes("PERMISSION_DENIED");
+      
+      let guidance = "";
+      if (isLeakedMsg) {
+        guidance = `⚠️ **Gemini API Live Connection Status:** The cloud API key is currently restricted or flagged. To restore fully active cloud-tier AI models, you can easily configure or refresh your Gemini API key inside the **Settings > Secrets** panel of the AI Studio UI.\n\n***\n\n`;
+      } else {
+        guidance = `⚠️ **Gemini API Connection Offline:** Remote model is unreachable (${errMsg || "Network Error"}).\n\n***\n\n`;
+      }
+      
+      const fallbackMessage = getOfflineResponse(message);
+      return res.json({
+        reply: `${guidance}### 🍀 Running Offline-First Local Diagnostics\n\n${fallbackMessage}`
+      });
     }
   } else {
-    console.log("No custom user GEMINI_API_KEY detected in env. Swapping to backup key...");
-  }
-
-  // Try 2: Try the backup API key provided by the user
-  try {
-    console.log("Trying Gemini chat with backup API Key...");
-    const reply = await runGeminiChat(backupKey, message, history);
-    return res.json({ reply });
-  } catch (err: any) {
-    console.error("Backup API Key call also failed. Falling back to offline local rule-based diagnostics.", err.message);
+    console.log("No custom user GEMINI_API_KEY detected in env.");
+    const guidance = `💡 **Note on Cloud Connectivity:** No active Gemini API key was found in your server environment. Your environment's personal API key can be securely loaded from the **Settings > Secrets** panel to reactivate global cloud-tier AI reasoning.\n\n***\n\n`;
     
-    const details = err.message || "Network Error";
-    // If BOTH the user key and the backup key failed, we return the offline fallback with a diagnostic notice
     const fallbackMessage = getOfflineResponse(message);
     return res.json({
-      reply: `⚠️ **Clinical Advisor Diagnostic Alert:** Online AI models were temporarily unreachable (${details}). Running offline-first local diagnostics:\n\n${fallbackMessage}`
+      reply: `${guidance}### 🍀 Running Offline-First Local Diagnostics\n\n${fallbackMessage}`
     });
   }
 });
