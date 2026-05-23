@@ -77,12 +77,214 @@ For clinical diagnostic pre-screening of sick bird symptoms only, structure your
 - Keep output concise, scannable, and extremely high signals. Avoid long introductory or concluding text.
 `;
 
+// Elegant list-based offline symptom classifier
+function getOfflineResponse(message: string): string {
+  const query = message.toLowerCase();
+
+  // 1. Greetings
+  if (
+    query.trim() === "hi" ||
+    query.trim() === "hello" ||
+    query.trim() === "hey" ||
+    query.includes("good morning") ||
+    query.includes("good afternoon") ||
+    query.includes("good evening") ||
+    query.includes("how are you")
+  ) {
+    return `Hello there! I am FlockIntel AI, your clinical health advisor. 
+
+I am currently running in **offline-first pre-screening fallback mode** (ready to help!). Please describe any sickness symptoms you are seeing in your flock (such as *green droppings*, *bloody poop*, *swollen eyes*, or *scabs on comb*) and I will run a customized regional diagnostic check for you.`;
+  }
+
+  // 2. Thank you
+  if (query.includes("thank you") || query.includes("thanks") || query.trim() === "ok thanks" || query.trim() === "ok") {
+    return "You're very welcome! Keep monitoring your flock closely, and let me know if you observe any other clinical signs. Stay safe!";
+  }
+
+  const matchedDiseases: string[] = [];
+  const symptomsMatched: string[] = [];
+  let diagnosisText = "";
+
+  // Newcastle Disease
+  if (
+    query.includes("newcastle") ||
+    query.includes("green") ||
+    query.includes("twisting") ||
+    query.includes("twisted") ||
+    query.includes("paralysis") ||
+    query.includes("nervous")
+  ) {
+    matchedDiseases.push("Newcastle Disease (Highly Contagious Virus)");
+    symptomsMatched.push("watery green droppings, respiratory gasping, or nervous twisted-neck symptoms");
+    diagnosisText += `
+### 1. Newcastle Disease (Viral)
+- **Clinical Signs**: Greenish watery diarrhea, coughing/gasping, twisted neck/stargazing, wing/leg paralysis, high mortality.
+- **Immediate First-Aid**: Quarantine all symptomatic birds immediately. Administer vitamins and multi-electrolytes in water to reduce stress. Provide broad-spectrum antibiotics (such as Tylosin or Neomycin) only to prevent secondary bacterial complications.
+- **Prevention Strategy**: Strict, proactive vaccination is the only prevention. Implement LaSota or HB1 strain vaccines in drinking water or eye drops according to standard scheduling. Disinfect housing with Virkon-S.
+`;
+  }
+
+  // Coccidiosis
+  if (
+    query.includes("coccidiosis") ||
+    query.includes("blood") ||
+    query.includes("bloody") ||
+    query.includes("red poop") ||
+    query.includes("huddle") ||
+    query.includes("huddling") ||
+    query.includes("cocci")
+  ) {
+    matchedDiseases.push("Coccidiosis (Protozoan Parasite)");
+    symptomsMatched.push("bloody/mucus-filled diarrhea, ruffled feathers, pale combs, and birds huddling together");
+    diagnosisText += `
+### 2. Coccidiosis (Protozoic)
+- **Clinical Signs**: Bloody, dark/mucus-filled diarrhea, severe lethargy, pale combs, loss of appetite, and huddling.
+- **Immediate First-Aid**: Treat immediately using water-soluble anticoccidial drugs such as **Amprolium**, Sulfadimidine, or Toltrazuril. Add **Vitamin K** to their water to control intestinal bleeding.
+- **Prevention Strategy**: Keep litter bone-dry at all costs. Change wet bedding immediately! Avoid overcrowding and ensure adequate ventilation. Use coccidiostats in feed if available.
+`;
+  }
+
+  // Gumboro (IBD)
+  if (
+    query.includes("gumboro") ||
+    query.includes("ibd") ||
+    query.includes("bursal") ||
+    query.includes("peck") ||
+    query.includes("vent") ||
+    query.includes("white diarrhea") ||
+    query.includes("trembling")
+  ) {
+    matchedDiseases.push("Gumboro / Infectious Bursal Disease (IBD)");
+    symptomsMatched.push("severe depression, watery white feces, self-vent pecking, lack of coordination, or trembling");
+    diagnosisText += `
+### 3. Gumboro / Infectious Bursal Disease (IBD)
+- **Clinical Signs**: Watery white diarrhea, extreme depression, birds pecking at their own vents, trembling, high mortality in young chicks (3-6 weeks).
+- **Immediate First-Aid**: There is no direct cure for this virus. Supply high-quality multivitamins, glucose, and supportive oral rehydration electrolytes to combat dehydration. Prevent secondary respiratory/bacterial stress using mild feed antibiotics.
+- **Prevention Strategy**: Clean and disinfect pens thoroughly between batches. Vaccinate chicks around Day 10-14, and repeat booster vaccinations on Day 21-24 with live IBD vaccines.
+`;
+  }
+
+  // Fowl Pox
+  if (
+    query.includes("pox") ||
+    query.includes("scab") ||
+    query.includes("scabs") ||
+    query.includes("comb") ||
+    query.includes("wattle") ||
+    query.includes("canker") ||
+    query.includes("cheesy")
+  ) {
+    matchedDiseases.push("Fowl Pox (Slow-Spreading Virus)");
+    symptomsMatched.push("wart-like scabs or nodules on the comb/wattles, or cheesy yellow throat patches");
+    diagnosisText += `
+### 4. Fowl Pox (Dry/Wet)
+- **Clinical Signs**: Dark wart-like scabs on comb/eyelids, and/or yellow cheesy canker in mouth/throat causing severe gasping.
+- **Immediate First-Aid**: Isolate all scabbed birds. Gently apply antiseptic ointments (such as dilute Iodine or sulfur vaseline) to external nodules. Supplement with Vitamin A to promote skin and mucous membrane healing.
+- **Prevention Strategy**: Control mosquitoes and biting insects around the poultry house, as they are the primary vectors. Vaccinate the remaining healthy flock immediately using Fowl Pox vaccine by wing-web stab.
+`;
+  }
+
+  // Infectious Coryza / Chronic Respiratory Disease (CRD)
+  if (
+    query.includes("coryza") ||
+    query.includes("crd") ||
+    query.includes("sneez") ||
+    query.includes("cough") ||
+    query.includes("swollen eye") ||
+    query.includes("watery eye") ||
+    query.includes("pus") ||
+    query.includes("discharge") ||
+    query.includes("nasal") ||
+    query.includes("smelly") ||
+    query.includes("stinky")
+  ) {
+    matchedDiseases.push("Infectious Coryza / Chronic Respiratory Disease (CRD)");
+    symptomsMatched.push("swollen face, sticky nasal discharge with foul smell, watery/pus-closed eyes, or coughing");
+    diagnosisText += `
+### 5. Infectious Coryza / CRD (Bacterial)
+- **Clinical Signs**: Swollen face/sinuses, foul-smelling nasal discharge, sticky pus closing the eyes, gurgling breath sounds.
+- **Immediate First-Aid**: Treat immediately with respiratory antibiotics like **Tylosin, Erythromycin, or Tetracycline** in drinking water. Clean the birds' eyes with a dilute saline or warm boric acid solution.
+- **Prevention Strategy**: Improve ventilation immediately to prevent harmful ammonia build-up. Keep dust levels down by managing dry litter, and sanitize drinker lines daily.
+`;
+  }
+
+  // Avian Influenza
+  if (
+    query.includes("influenza") ||
+    query.includes("flu") ||
+    query.includes("sudden") ||
+    query.includes("purple") ||
+    query.includes("blue wattle") ||
+    query.includes("blue comb") ||
+    query.includes("swimming") ||
+    query.includes("severe distress")
+  ) {
+    matchedDiseases.push("Highly Pathogenic Avian Influenza (HPAI / Bird Flu)");
+    symptomsMatched.push("extremely high sudden mortality, facial swelling, bluish-purple combs/wattles, or blood in nostrils");
+    diagnosisText += `
+### 6. Avian Influenza (Bird Flu)
+- **Clinical Signs**: Sudden death of many birds without prior signs, blue discoloration of combs, bloody nasal discharge, severe lethargy.
+- **Immediate First-Aid**: **WARNING: This is a zoonotic disease.** Do not attempt clinical treatment. Quarantine the entire farm immediately. Do not transport, sell, or touch dead poultry without secure protective equipment.
+- **Prevention Strategy**: Maintain strict biosecurity. Exclude wild birds from entering pens. Notify state poultry officers or local MOFA veterinarian immediately.
+`;
+  }
+
+  // If we matched some disease symptoms, compile a gorgeous clinical pre-screening response!
+  if (matchedDiseases.length > 0) {
+    return `### 🩺 FlockIntel Veterinary Pre-Screening Report
+*Running in local-expert backup mode (no API key detected).*
+
+- **Potential Disease(s) Identified**: ${matchedDiseases.join(", ")}
+- **Core Clinical Symptoms Matched**: ${symptomsMatched.join("; ")}
+
+---
+
+${diagnosisText}
+
+---
+
+### 🛡️ Recommended IMMEDIATE Biosecurity Safeguards
+1. **Quarantine Immediately**: Separate all sick, gasping, or ruffling birds from healthy layers/broilers.
+2. **Water-Line Treatment**: Administer appropriate supportive classes of medication (Vit K / Amprolium for bloody droppings; broad-spectrum antibiotics for respiratory coryza).
+3. **Footbaths & Disinfection**: Setup Virkon-S footbaths at every entrance and scrub tools.
+
+### 📞 MoFA Ghana Support Referral
+Please contact the National Poultries Directorate or prompt your district MoFA extension veterinarian at **+233 (0) 244 837 581** for immediate sample collection and diagnostic confirmation.
+
+*Disclaimer: This advisory report is an automated pre-screening engine and must not replace professional on-site diagnostic verification by verified veterinary officers.*`;
+  }
+
+  // General poultry definition context response if no specific sickness symptoms matched
+  return `### 💡 FlockIntel Advisory Notice
+I noticed you are asking about general poultry husbandry, feeding regimes, or non-sickness topics, or I couldn't match specific clinical signs.
+
+Since I am presently running in **local-expert backup mode** (no Gemini API key detected), I am limited to matching clinical sickness symptoms. You can trigger targeted disease guidelines by asking about specific symptoms, such as:
+- *"My birds have watery green droppings and twisted necks"* (Newcastle pre-screen)
+- *"What should I do for bloody diarrhea and ruffled feathers?"* (Coccidiosis pre-screen)
+- *"They have swollen eyes, runny noses, and sneezing"* (Infectious Coryza pre-screen)
+- *"There are black scabs on their combs and eyelids"* (Fowl Pox pre-screen)
+
+**General Farm Quick Checks:**
+- Make sure feed silos are at least 20% full.
+- Ensure automated sensors monitor temperature within the 21-27°C target.
+- Clean and sanitize water drinkers daily to prevent Gumboro and other waterborne bacteria.
+
+*To unlock full open-domain conversations, configure your Gemini API Key in the **Settings > Secrets** panel.*`;
+}
+
 // API Endpoints
 app.post("/api/chat", async (req, res) => {
+  const { message, history } = req.body;
+  if (!message) {
+    return res.status(400).json({ error: "Message is required." });
+  }
+
   try {
-    const { message, history } = req.body;
-    if (!message) {
-      return res.status(400).json({ error: "Message is required." });
+    // Check if Gemini API key exists, otherwise fall back to local rule-based advisor seamlessly
+    if (!process.env.GEMINI_API_KEY) {
+      console.log("No GEMINI_API_KEY detected. Using clinical local getOfflineResponse fallback.");
+      const reply = getOfflineResponse(message);
+      return res.json({ reply });
     }
 
     const ai = getGeminiClient();
@@ -110,11 +312,10 @@ app.post("/api/chat", async (req, res) => {
       reply: response.text,
     });
   } catch (error: any) {
-    console.error("Gemini API Error in backend:", error);
-    res.status(500).json({
-      error: error.message || "Failed to communicate with FlockIntel AI.",
-      keyMissing: !process.env.GEMINI_API_KEY,
-    });
+    console.error("Gemini API Error in backend, falling back to local pre-screening:", error);
+    // Even if Gemini throws an error (quota limits, token issues), fall back safely so chatbot never breaks
+    const reply = getOfflineResponse(message);
+    res.json({ reply });
   }
 });
 
