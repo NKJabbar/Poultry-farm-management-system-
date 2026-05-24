@@ -8,7 +8,95 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
-app.use(express.json());
+// --- 1. EXPRESS COGNIZANCE / HARDENING ---
+// Explicitly disable x-powered-by to prevent framework fingerprinting and automated target analysis
+app.disable("x-powered-by");
+
+// Limit request JSON payloads to protect against large memory allocation attacks / JSON bloating attacks
+app.use(express.json({ limit: "150kb" }));
+
+// --- 2. GLOBAL SECURITY HEADERS MIDDLEWARE ---
+// Implements secure headers without external dependecies to avoid node_modules versioning conflicts
+app.use((req, res, next) => {
+  // Prevent MIME-sniffing vulnerability
+  res.setHeader("X-Content-Type-Options", "nosniff");
+
+  // Prevent drag-and-drop clickjacking while allowing the applet to safely run inside the AI Studio domain
+  res.setHeader("X-Frame-Options", "SAMEORIGIN");
+
+  // Rigorous Content-Security-Policy (CSP) restricting script, style, connection and frame targets to prevent XSS and malicious frame embedding
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+    "font-src 'self' data: https://fonts.gstatic.com; " +
+    "img-src 'self' data: blob: referrer; " +
+    "connect-src 'self' ws: wss: https://*.google.com; " +
+    "frame-ancestors 'self' https://*.google.com https://*.run.app https://ais-pre-jjkkbfkvzu3n5catotvkct-482390678493.europe-west1.run.app;"
+  );
+
+  // Modern browser defense blocking active loading of Reflected XSS payloads
+  res.setHeader("X-XSS-Protection", "1; mode=block");
+
+  // Strict referrers constraint to filter credential leaks
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+
+  // Enforce HTTPS HSTS rules securely
+  res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
+
+  next();
+});
+
+// --- 3. IN-MEMORY STICKY IP RATE LIMITER ---
+// Limits repetitive advisory querying to standard human-level usage to avoid Gemini quota depletion and spam
+interface RateLimitInfo {
+  count: number;
+  resetTime: number;
+}
+const ipRequestHistory = new Map<string, RateLimitInfo>();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const MAX_REQUESTS_PER_WINDOW = 30; // Max 30 questions per IP per minute
+
+// Automatically wipe expired items periodically to guarantee no memory leak grows over time
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, info] of ipRequestHistory.entries()) {
+    if (now > info.resetTime) {
+      ipRequestHistory.delete(ip);
+    }
+  }
+}, 5 * 60 * 1000); // Clean every 5 minutes
+
+function rateLimiter(req: express.Request, res: express.Response, next: express.NextFunction) {
+  // Extract clients true IP safely prioritizing X-Forwarded-For if behind a reverse proxy
+  const forwarded = req.headers["x-forwarded-for"];
+  const ip = typeof forwarded === "string" ? forwarded.split(",")[0].trim() : req.socket.remoteAddress || "unknown-ip";
+
+  const now = Date.now();
+  const info = ipRequestHistory.get(ip);
+
+  if (!info || now > info.resetTime) {
+    ipRequestHistory.set(ip, {
+      count: 1,
+      resetTime: now + RATE_LIMIT_WINDOW_MS
+    });
+    return next();
+  }
+
+  if (info.count >= MAX_REQUESTS_PER_WINDOW) {
+    res.setHeader("Retry-After", Math.ceil((info.resetTime - now) / 1000));
+    return res.status(429).json({
+      error: "Too many requests. Please throttle your queries to preserve medical chatbot bandwidth for high-alert diagnostic queries."
+    });
+  }
+
+  info.count += 1;
+  return next();
+}
+
+// Mount rate-limiter specifically on API endpoints
+app.use("/api/chat", rateLimiter);
 
 // Helper to construct a GoogleGenAI client
 function createGeminiClient(apiKey: string): GoogleGenAI {
@@ -288,8 +376,46 @@ I am running in clinical pre-screening fallback mode. You can trigger targeted d
 // API Endpoints
 app.post("/api/chat", async (req, res) => {
   const { message, history } = req.body;
-  if (!message) {
-    return res.status(400).json({ error: "Message is required." });
+
+  // --- STRICT INPUT VALIDATION & SANITIZATION (Defense-in-depth against prompt/buffer injection) ---
+  if (typeof message !== "string" || message.trim() === "") {
+    return res.status(400).json({ error: "Message must be a non-empty string." });
+  }
+
+  if (message.length > 4000) {
+    return res.status(400).json({ error: "Message exceeds safely allowed character limit of 4000." });
+  }
+
+  const safeMessage = message.trim();
+  const validatedHistory: { role: string; content: string }[] = [];
+
+  if (history !== undefined) {
+    if (!Array.isArray(history)) {
+      return res.status(400).json({ error: "History must be an array structure." });
+    }
+    if (history.length > 20) {
+      return res.status(400).json({ error: "History size exceeds maximum conversation depth of 20." });
+    }
+
+    for (let i = 0; i < history.length; i++) {
+      const item = history[i];
+      if (!item || typeof item !== "object" || Array.isArray(item)) {
+        return res.status(400).json({ error: `Invalid history item structure at index ${i}` });
+      }
+      if (typeof item.role !== "string" || !["user", "model", "assistant"].includes(item.role)) {
+        return res.status(400).json({ error: `Invalid role at history index ${i}` });
+      }
+      if (typeof item.content !== "string") {
+        return res.status(400).json({ error: `Invalid content type at history index ${i}` });
+      }
+      if (item.content.length > 4000) {
+        return res.status(400).json({ error: `History content at index ${i} exceeds limit of 4000 characters.` });
+      }
+      validatedHistory.push({
+        role: item.role === "user" ? "user" : "model",
+        content: item.content.trim()
+      });
+    }
   }
 
   const userKey = process.env.GEMINI_API_KEY;
@@ -297,7 +423,7 @@ app.post("/api/chat", async (req, res) => {
   if (userKey) {
     try {
       console.log("Trying Gemini chat with user's configured GEMINI_API_KEY...");
-      const reply = await runGeminiChat(userKey, message, history);
+      const reply = await runGeminiChat(userKey, safeMessage, validatedHistory);
       return res.json({ reply });
     } catch (err: any) {
       const errMsg = err.message || "";
@@ -312,7 +438,7 @@ app.post("/api/chat", async (req, res) => {
         guidance = `⚠️ **Gemini API Connection Offline:** Remote model is unreachable (${errMsg || "Network Error"}).\n\n***\n\n`;
       }
       
-      const fallbackMessage = getOfflineResponse(message);
+      const fallbackMessage = getOfflineResponse(safeMessage);
       return res.json({
         reply: `${guidance}### 🍀 Running Offline-First Local Diagnostics\n\n${fallbackMessage}`
       });
@@ -321,7 +447,7 @@ app.post("/api/chat", async (req, res) => {
     console.log("No custom user GEMINI_API_KEY detected in env.");
     const guidance = `💡 **Note on Cloud Connectivity:** No active Gemini API key was found in your server environment. Your environment's personal API key can be securely loaded from the **Settings > Secrets** panel to reactivate global cloud-tier AI reasoning.\n\n***\n\n`;
     
-    const fallbackMessage = getOfflineResponse(message);
+    const fallbackMessage = getOfflineResponse(safeMessage);
     return res.json({
       reply: `${guidance}### 🍀 Running Offline-First Local Diagnostics\n\n${fallbackMessage}`
     });
