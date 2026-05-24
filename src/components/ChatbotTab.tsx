@@ -37,6 +37,7 @@ export const ChatbotTab: React.FC<ChatbotTabProps> = ({
 }) => {
   const [inputText, setInputText] = useState("");
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [mobileActiveSubTab, setMobileActiveSubTab] = useState<"chat" | "reference">("chat");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -87,10 +88,40 @@ export const ChatbotTab: React.FC<ChatbotTabProps> = ({
   ];
 
   return (
-    <div id="chatbot-tab-view" className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full min-h-0 lg:overflow-hidden">
+    <div id="chatbot-tab-view" className="flex flex-col lg:grid lg:grid-cols-12 gap-5 h-full min-h-0 lg:overflow-hidden">
       
+      {/* Mobile Sub-Tab Switcher (styled optimally with brand aesthetics, visible on mobile only) */}
+      <div className="lg:hidden flex p-1 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shrink-0">
+        <button
+          type="button"
+          onClick={() => setMobileActiveSubTab("chat")}
+          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            mobileActiveSubTab === "chat"
+              ? "bg-white dark:bg-slate-800 text-emerald-700 dark:text-emerald-400 shadow-xs"
+              : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+          }`}
+        >
+          <HeartPulse className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+          <span>Advisor Chat</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileActiveSubTab("reference")}
+          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            mobileActiveSubTab === "reference"
+              ? "bg-white dark:bg-slate-800 text-emerald-700 dark:text-emerald-400 shadow-xs"
+              : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+          }`}
+        >
+          <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+          <span>Reference Guides</span>
+        </button>
+      </div>
+
       {/* Left Chatbot Sidebar: Reference Info & Quick Prompts */}
-      <div className="lg:col-span-4 space-y-6 flex flex-col justify-start lg:overflow-y-auto lg:max-h-full lg:pr-1.5 min-h-0">
+      <div className={`lg:col-span-4 space-y-6 flex-col justify-start lg:overflow-y-auto lg:max-h-full lg:pr-1.5 min-h-0 ${
+        mobileActiveSubTab === "reference" ? "flex h-full overflow-y-auto" : "hidden lg:flex"
+      }`}>
         
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl p-5 space-y-4 shadow-sm">
           <div className="flex items-center gap-2">
@@ -104,54 +135,78 @@ export const ChatbotTab: React.FC<ChatbotTabProps> = ({
           </p>
 
           <div className="pt-3 border-t border-slate-150 dark:border-slate-800">
-            <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 block mb-2">Ghana Pathogens Profiled</span>
+            <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 block mb-2 font-sans">Ghana Pathogens Profiled</span>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 text-[11px] font-semibold">
               <button 
-                onClick={() => handleQuickQuestion("Provide an advisory profile for Newcastle Disease: symptoms, transmission, prevention, and Ghana MoFA guidelines.")}
+                type="button"
+                onClick={() => {
+                  handleQuickQuestion("Provide an advisory profile for Newcastle Disease: symptoms, transmission, prevention, and Ghana MoFA guidelines.");
+                  setMobileActiveSubTab("chat");
+                }}
                 className="w-full text-left p-2.5 rounded-xl border border-rose-200 dark:border-rose-900/30 bg-rose-50/50 hover:bg-rose-100/80 dark:bg-rose-950/30 dark:hover:bg-rose-900/40 text-rose-900 dark:text-rose-200 transition-all cursor-pointer flex items-center gap-2"
               >
                 <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0"></span>
-                <span className="truncate">Newcastle (Highly Infectious)</span>
+                <span className="truncate flex-1">Newcastle (Highly Infectious)</span>
               </button>
               
               <button 
-                onClick={() => handleQuickQuestion("Provide an advisory profile for Coccidiosis: symptoms, treatment options (e.g. Amprolium), wet litter management, and prevention.")}
-                className="w-full text-left p-2.5 rounded-xl border border-amber-200 dark:border-amber-900/30 bg-amber-50/50 hover:bg-amber-100/80 dark:bg-amber-950/30 dark:hover:bg-amber-900/40 text-amber-950 dark:text-amber-200 transition-all cursor-pointer flex items-center gap-2"
+                type="button"
+                onClick={() => {
+                  handleQuickQuestion("Provide an advisory profile for Coccidiosis: symptoms, treatment options (e.g. Amprolium), wet litter management, and prevention.");
+                  setMobileActiveSubTab("chat");
+                }}
+                className="w-full text-left p-2.5 rounded-xl border border-amber-200 dark:border-amber-900/30 bg-amber-50/50 hover:bg-amber-100/80 dark:bg-amber-950/30 dark:hover:bg-amber-900/40 text-amber-955 or text-amber-950 dark:text-amber-200 transition-all cursor-pointer flex items-center gap-2"
               >
                 <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
-                <span className="truncate">Coccidiosis (Wet Litter/Parasitic)</span>
+                <span className="truncate flex-1">Coccidiosis (Wet Litter/Parasitic)</span>
               </button>
               
               <button 
-                onClick={() => handleQuickQuestion("Provide an advisory profile for Gumboro / Infectious Bursal Disease (IBD): signs in chicks, severity, and vaccination schedule.")}
+                type="button"
+                onClick={() => {
+                  handleQuickQuestion("Provide an advisory profile for Gumboro / Infectious Bursal Disease (IBD): signs in chicks, severity, and vaccination schedule.");
+                  setMobileActiveSubTab("chat");
+                }}
                 className="w-full text-left p-2.5 rounded-xl border border-indigo-200 dark:border-indigo-900/30 bg-indigo-50/50 hover:bg-indigo-100/80 dark:bg-indigo-950/30 dark:hover:bg-indigo-900/40 text-indigo-900 dark:text-indigo-200 transition-all cursor-pointer flex items-center gap-2"
               >
                 <span className="w-2 h-2 rounded-full bg-indigo-500 shrink-0"></span>
-                <span className="truncate">Gumboro / IBD (Chicks Focus)</span>
+                <span className="truncate flex-1">Gumboro / IBD (Chicks Focus)</span>
               </button>
               
               <button 
-                onClick={() => handleQuickQuestion("Provide an advisory profile for Fowl Pox: clinical signs like wing nodules, transmission, risk, and treatment/management rules.")}
+                type="button"
+                onClick={() => {
+                  handleQuickQuestion("Provide an advisory profile for Fowl Pox: clinical signs like wing nodules, transmission, risk, and treatment/management rules.");
+                  setMobileActiveSubTab("chat");
+                }}
                 className="w-full text-left p-2.5 rounded-xl border border-purple-200 dark:border-purple-900/30 bg-purple-50/50 hover:bg-purple-100/80 dark:bg-purple-950/30 dark:hover:bg-purple-900/40 text-purple-900 dark:text-purple-200 transition-all cursor-pointer flex items-center gap-2"
               >
                 <span className="w-2 h-2 rounded-full bg-purple-500 shrink-0"></span>
-                <span className="truncate">Fowl Pox (Wing Nodules)</span>
+                <span className="truncate flex-1">Fowl Pox (Wing Nodules)</span>
               </button>
               
               <button 
-                onClick={() => handleQuickQuestion("Provide an advisory profile for Avian Flu (Avian Influenza): signs, extremely dangerous zoonotic risk to humans, and strict quarantine and biosecurity reporting guidelines.")}
+                type="button"
+                onClick={() => {
+                  handleQuickQuestion("Provide an advisory profile for Avian Flu (Avian Influenza): signs, extremely dangerous zoonotic risk to humans, and strict quarantine and biosecurity reporting guidelines.");
+                  setMobileActiveSubTab("chat");
+                }}
                 className="w-full text-left p-2.5 rounded-xl border border-red-200 dark:border-red-900/30 bg-red-50/50 hover:bg-red-100/80 dark:bg-red-950/30 dark:hover:bg-red-900/40 text-red-900 dark:text-red-200 transition-all cursor-pointer flex items-center gap-2"
               >
                 <span className="w-2 h-2 rounded-full bg-red-500 shrink-0"></span>
-                <span className="truncate">Avian Flu (Zoonotic Alert)</span>
+                <span className="truncate flex-1">Avian Flu (Zoonotic Alert)</span>
               </button>
               
               <button 
-                onClick={() => handleQuickQuestion("Provide an advisory profile for Infectious Coryza / Chronic Respiratory Disease (CRD): signs around the eyes and face, treatment via antibiotics, environmental triggers, and control strategies.")}
+                type="button"
+                onClick={() => {
+                  handleQuickQuestion("Provide an advisory profile for Infectious Coryza / Chronic Respiratory Disease (CRD): signs around the eyes and face, treatment via antibiotics, environmental triggers, and control strategies.");
+                  setMobileActiveSubTab("chat");
+                }}
                 className="w-full text-left p-2.5 rounded-xl border border-teal-200 dark:border-teal-900/30 bg-teal-50/50 hover:bg-teal-100/80 dark:bg-teal-950/30 dark:hover:bg-teal-900/40 text-teal-900 dark:text-teal-200 transition-all cursor-pointer flex items-center gap-2"
               >
-                <span className="w-2 h-2 rounded-full bg-teal-500 shrink-0"></span>
-                <span className="truncate">Infectious Coryza (Swollen Eye)</span>
+                <span className="w-2 h-2 rounded-full bg-teal-550 shrink-0"></span>
+                <span className="truncate flex-1">Infectious Coryza (Swollen Eye)</span>
               </button>
             </div>
           </div>
@@ -159,16 +214,20 @@ export const ChatbotTab: React.FC<ChatbotTabProps> = ({
 
         {/* Quick Question Cards */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-3 shadow-sm">
-          <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block">Quick Advisory Topics</span>
+          <span className="text-xs font-bold text-slate-555 dark:text-slate-400 uppercase tracking-widest block font-sans">Quick Advisory Topics</span>
           <div className="space-y-2">
             {sampleQuestions.map((q, idx) => (
               <button
                 key={idx}
-                onClick={() => handleQuickQuestion(q.query)}
+                type="button"
+                onClick={() => {
+                  handleQuickQuestion(q.query);
+                  setMobileActiveSubTab("chat");
+                }}
                 className="w-full text-left p-3 rounded-xl border border-slate-150 dark:border-slate-800 hover:border-emerald-300 dark:hover:border-emerald-700 bg-slate-50/50 dark:bg-slate-950/40 hover:bg-emerald-50/20 dark:hover:bg-emerald-900/10 text-xs text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-emerald-400 font-medium transition-all flex items-center justify-between group cursor-pointer"
               >
-                <span className="truncate pr-4">{q.title}</span>
-                <ChevronRight className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors shrink-0" />
+                <span className="truncate pr-4 flex-1">{q.title}</span>
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400 dark:text-slate-505 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors shrink-0" />
               </button>
             ))}
           </div>
@@ -184,11 +243,12 @@ export const ChatbotTab: React.FC<ChatbotTabProps> = ({
             Conversational suggestions are diagnostic pre-screens based on statistical patterns. <strong>Do NOT replace certified pathologists.</strong> Contact MoFA veterinary extension officers for critical medication prescriptions.
           </p>
         </div>
-
       </div>
 
       {/* Right Chatbot Panel: Message History & Input */}
-      <div className="lg:col-span-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm flex flex-col h-[520px] lg:h-full lg:max-h-full min-h-0 overflow-hidden">
+      <div className={`lg:col-span-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm flex flex-col min-h-0 overflow-hidden ${
+        mobileActiveSubTab === "chat" ? "flex-1 h-full" : "hidden lg:flex lg:h-full lg:max-h-full"
+      }`}>
         
         {/* Header toolbar */}
         <div className="p-4 border-b border-slate-100/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/30 flex items-center justify-between">
@@ -313,7 +373,7 @@ export const ChatbotTab: React.FC<ChatbotTabProps> = ({
               <div className="w-8 h-8 rounded-full bg-slate-900 dark:bg-slate-800 text-white flex items-center justify-center text-xs shrink-0">
                 <Sparkles className="w-4.5 h-4.5 text-emerald-400" />
               </div>
-              <div className="bg-white dark:bg-slate-950/65 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl rounded-tl-none text-xs text-slate-600 dark:text-slate-300 flex items-center gap-2">
+              <div className="bg-white dark:bg-slate-950/65 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl rounded-tl-none text-xs text-slate-600 dark:text-slate-300 flex items-center gap-2 shadow-xs">
                 <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-600 dark:text-emerald-400" />
                 Analyzing symptoms with GCA / FAO datasets...
               </div>

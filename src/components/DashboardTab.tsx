@@ -120,14 +120,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
             <Plus className="w-4 h-4" />
             Log Activity
           </button>
-          <button
-            id="chat-advisor-btn"
-            onClick={() => onNavigateTo("chatbot")}
-            className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl cursor-pointer shadow-sm transition-colors"
-          >
-            <HeartPulse className="w-4 h-4 text-emerald-400" />
-            AI Vet Chat
-          </button>
+
         </div>
       </div>
 
@@ -299,8 +292,42 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
             Quick Disease Symptom Check
           </h3>
           <p className="text-slate-600 text-xs sm:text-sm mt-2 leading-relaxed">
-            Observe anything unusual? Tap any common symptom to instantly query the Google Gemini-powered Health Chatbot for diagnostic clues and critical steps:
+            Observe anything unusual? Type symptoms directly or tap any preset scenario to query the Google Gemini-powered Health Chatbot for diagnostic clues and critical protocols:
           </p>
+
+          {/* Interactive AI Query Bar */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const form = e.currentTarget;
+              const input = form.elements.namedItem("ai-symptom-query") as HTMLInputElement;
+              const query = (input?.value || "").trim();
+              if (query) {
+                onQuickAiSymptom(query);
+                form.reset();
+              }
+            }}
+            className="mt-4 flex gap-2 items-center"
+          >
+            <div className="relative flex-1">
+              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                <HeartPulse className="w-4 h-4 text-emerald-600 animate-pulse" />
+              </span>
+              <input
+                type="text"
+                name="ai-symptom-query"
+                required
+                placeholder="What symptoms are you seeing? (e.g. 'crying sounds', 'cold flock')"
+                className="w-full text-xs sm:text-sm pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-hidden focus:ring-1 focus:ring-emerald-500 focus:bg-white dark:focus:bg-slate-950 text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-550 font-sans"
+              />
+            </div>
+            <button
+              type="submit"
+              className="px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white font-black text-xs rounded-xl shadow-xs transition-transform active:scale-[0.98] cursor-pointer"
+            >
+              Ask Advisor
+            </button>
+          </form>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mt-5">
             <button

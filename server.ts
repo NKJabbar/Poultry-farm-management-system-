@@ -373,6 +373,24 @@ I am running in clinical pre-screening fallback mode. You can trigger targeted d
 - Clean and sanitize water drinkers daily to prevent pathogen transmission.`;
 }
 
+// Keep track of the API key validity to avoid repeated slow network errors or log spam
+let isApiKeyLeaked = false;
+let lastUsedKey = "";
+
+function sanitizeApiKey(key: string): string {
+  if (!key) return "";
+  let sanitized = key.trim();
+  // Strip enclosing double quotes if present
+  if (sanitized.startsWith('"') && sanitized.endsWith('"')) {
+    sanitized = sanitized.slice(1, -1);
+  }
+  // Strip enclosing single quotes if present
+  if (sanitized.startsWith("'") && sanitized.endsWith("'")) {
+    sanitized = sanitized.slice(1, -1);
+  }
+  return sanitized.trim();
+}
+
 // API Endpoints
 app.post("/api/chat", async (req, res) => {
   const { message, history } = req.body;
@@ -418,7 +436,23 @@ app.post("/api/chat", async (req, res) => {
     }
   }
 
-  const userKey = process.env.GEMINI_API_KEY;
+  const rawKey = process.env.GEMINI_API_KEY || "";
+  const userKey = sanitizeApiKey(rawKey);
+
+  // Reset leaked status if user rotated or updated their API key
+  if (userKey !== lastUsedKey) {
+    isApiKeyLeaked = false;
+    lastUsedKey = userKey;
+  }
+
+  // If the key was previously detected as leaked, run immediately in offline fallback
+  if (isApiKeyLeaked) {
+    const guidance = `⚠️ **Gemini API Live Connection Status:** The configured API key was previously reported as leaked and has been deactivated. To restore fully active cloud-tier AI models, please configure or refresh your Gemini API key inside the **Settings > Secrets** panel of the AI Studio UI.\n\n***\n\n`;
+    const fallbackMessage = getOfflineResponse(safeMessage);
+    return res.json({
+      reply: `${guidance}### 🍀 Running Offline-First Local Diagnostics\n\n${fallbackMessage}`
+    });
+  }
 
   if (userKey) {
     try {
@@ -426,14 +460,37 @@ app.post("/api/chat", async (req, res) => {
       const reply = await runGeminiChat(userKey, safeMessage, validatedHistory);
       return res.json({ reply });
     } catch (err: any) {
-      const errMsg = err.message || "";
+      let errMsg = "";
+      if (err && typeof err === "object") {
+        try {
+          errMsg = err.message || JSON.stringify(err);
+        } catch (_) {
+          errMsg = String(err);
+        }
+      } else {
+        errMsg = String(err);
+      }
       console.error("Gemini API call failed:", errMsg);
       
-      const isLeakedMsg = errMsg.includes("leaked") || errMsg.includes("leak") || errMsg.includes("403") || errMsg.includes("PERMISSION_DENIED");
+      const isLeakedMsg = errMsg.includes("leaked") || 
+                          errMsg.includes("leak") || 
+                          errMsg.includes("403") || 
+                          errMsg.includes("PERMISSION_DENIED") ||
+                          errMsg.includes("API key was reported as leaked") ||
+                          (err && (err.status === 403 || err.statusCode === 403 || err.code === 403));
       
+      const isExpiredOrInvalid = errMsg.includes("expired") ||
+                                       errMsg.includes("API_KEY_INVALID") ||
+                                       errMsg.includes("renew the API key") ||
+                                       errMsg.includes("key expired") ||
+                                       errMsg.includes("INVALID_ARGUMENT") && errMsg.includes("API key");
+
       let guidance = "";
       if (isLeakedMsg) {
-        guidance = `⚠️ **Gemini API Live Connection Status:** The cloud API key is currently restricted or flagged. To restore fully active cloud-tier AI models, you can easily configure or refresh your Gemini API key inside the **Settings > Secrets** panel of the AI Studio UI.\n\n***\n\n`;
+        isApiKeyLeaked = true;
+        guidance = `⚠️ **Gemini API Live Connection Status:** The cloud API key is restricted or flagged as leaked. To restore active cloud-tier AI models, please configure a fresh Gemini API key inside the **Settings > Secrets** panel of the AI Studio UI.\n\n***\n\n`;
+      } else if (isExpiredOrInvalid) {
+        guidance = `⚠️ **Gemini API Live Connection Status:** The configured Gemini API key has **expired or is invalid** (Error: API_KEY_INVALID). To restore fully active cloud-tier AI models, please create a fresh API key in Google AI Studio and update it in your AI Studio **Settings > Secrets** panel.\n\n***\n\n`;
       } else {
         guidance = `⚠️ **Gemini API Connection Offline:** Remote model is unreachable (${errMsg || "Network Error"}).\n\n***\n\n`;
       }

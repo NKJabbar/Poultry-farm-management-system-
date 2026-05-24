@@ -1595,7 +1595,7 @@ export default function App() {
         </header>
 
         {/* SUB VIEW SCROLLER GRID */}
-        <div className={`flex-1 p-6 lg:p-8 min-h-0 flex flex-col ${activeTab === "chatbot" ? "lg:overflow-hidden overflow-y-auto lg:h-full" : "overflow-y-auto"}`}>
+        <div className={`flex-1 p-4 sm:p-6 lg:p-8 min-h-0 flex flex-col ${activeTab === "chatbot" ? "overflow-hidden h-full" : "overflow-y-auto"}`}>
           
           {/* Active Tab Dispatcher */}
           {activeTab === "dashboard" && (
@@ -1755,6 +1755,27 @@ export default function App() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Global Floating AI Vet Button */}
+      {activeTab !== "chatbot" && (
+        <button
+          id="global-floating-chat-bubble"
+          onClick={() => {
+            setPrefilledChatText("");
+            setActiveTab("chatbot");
+          }}
+          className="fixed bottom-5 right-5 z-40 flex items-center gap-2 px-4 py-3 bg-slate-900 border border-slate-800 hover:bg-slate-850 text-white rounded-full shadow-2xl transition-all duration-350 hover:scale-105 active:scale-95 cursor-pointer"
+          title="Consult FlockIntel AI Vet"
+        >
+          {/* Pulsating Light Effect */}
+          <span className="absolute inset-0 rounded-full bg-emerald-500/20 animate-ping pointer-events-none"></span>
+          
+          <HeartPulse className="w-4.5 h-4.5 text-emerald-400 shrink-0" />
+          <span className="font-extrabold text-[10px] sm:text-[11px] uppercase tracking-wider whitespace-nowrap text-white font-sans">
+            Ask AI Vet
+          </span>
+        </button>
       )}
 
     </div>
