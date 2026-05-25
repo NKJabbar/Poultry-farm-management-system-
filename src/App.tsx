@@ -101,7 +101,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>("dashboard");
   const [prefilledChatText, setPrefilledChatText] = useState("");
   const [isChatLoading, setIsChatLoading] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Theme State
   const [darkMode, setDarkMode] = useState<boolean>(() => {
@@ -1113,18 +1113,18 @@ export default function App() {
   return (
     <div className="flex h-screen w-full bg-slate-50 dark:bg-slate-950 font-sans text-slate-800 dark:text-slate-100 overflow-hidden leading-snug">
       
-      {/* Mobile Menu Backdrop */}
-      {mobileMenuOpen && (
+      {/* Sidebar Backdrop */}
+      {sidebarOpen && (
         <div 
-          onClick={() => setMobileMenuOpen(false)}
-          className="lg:hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-30 transition-opacity cursor-pointer"
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-30 transition-opacity cursor-pointer"
           title="Click to close menu"
         />
       )}
       
       {/* SIDEBAR */}
-      <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-850 text-slate-600 dark:text-slate-300 flex flex-col justify-between transform transition-transform duration-300 lg:relative lg:translate-x-0 ${
-        mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+      <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-850 text-slate-600 dark:text-slate-300 flex flex-col justify-between transform transition-transform duration-300 ${
+        sidebarOpen ? "translate-x-0" : "-translate-x-full"
       }`}>
         
         <div>
@@ -1132,10 +1132,10 @@ export default function App() {
           <div className="p-6 flex items-center justify-between border-b border-slate-150 dark:border-slate-850">
             <FlockIntelLogo size="md" showText={true} textLight={darkMode} />
 
-            {/* Mobile close menu */}
+            {/* Close menu */}
             <button 
-              onClick={() => setMobileMenuOpen(false)}
-              className="lg:hidden p-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-250/20 dark:border-slate-700 text-slate-600 dark:text-slate-200 rounded-lg cursor-pointer transition-all duration-150"
+              onClick={() => setSidebarOpen(false)}
+              className="p-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-250/20 dark:border-slate-700 text-slate-600 dark:text-slate-200 rounded-lg cursor-pointer transition-all duration-150"
               title="Close menu"
             >
               <X className="w-4 h-4" />
@@ -1145,7 +1145,7 @@ export default function App() {
           {/* Navigation Links */}
           <nav className="px-3 py-6 space-y-1">
             <button
-              onClick={() => { setActiveTab("dashboard"); setMobileMenuOpen(false); }}
+              onClick={() => { setActiveTab("dashboard"); setSidebarOpen(false); }}
               className={`w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl font-sans font-bold text-xs tracking-wide uppercase transition-all duration-150 cursor-pointer text-left ${
                 activeTab === "dashboard"
                   ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border-r-4 border-emerald-600 dark:border-emerald-500"
@@ -1157,7 +1157,7 @@ export default function App() {
             </button>
 
             <button
-              onClick={() => { setActiveTab("batches"); setMobileMenuOpen(false); }}
+              onClick={() => { setActiveTab("batches"); setSidebarOpen(false); }}
               className={`w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl font-sans font-bold text-xs tracking-wide uppercase transition-all duration-150 cursor-pointer text-left ${
                 activeTab === "batches"
                   ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border-r-4 border-emerald-600 dark:border-emerald-500"
@@ -1169,7 +1169,7 @@ export default function App() {
             </button>
 
             <button
-              onClick={() => { setActiveTab("logging"); setMobileMenuOpen(false); }}
+              onClick={() => { setActiveTab("logging"); setSidebarOpen(false); }}
               className={`w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl font-sans font-bold text-xs tracking-wide uppercase transition-all duration-150 cursor-pointer text-left ${
                 activeTab === "logging"
                   ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border-r-4 border-emerald-600 dark:border-emerald-500"
@@ -1181,7 +1181,7 @@ export default function App() {
             </button>
 
             <button
-              onClick={() => { setActiveTab("analytics"); setMobileMenuOpen(false); }}
+              onClick={() => { setActiveTab("analytics"); setSidebarOpen(false); }}
               className={`w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl font-sans font-bold text-xs tracking-wide uppercase transition-all duration-150 cursor-pointer text-left ${
                 activeTab === "analytics"
                   ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border-r-4 border-emerald-600 dark:border-emerald-500"
@@ -1193,7 +1193,7 @@ export default function App() {
             </button>
 
             <button
-              onClick={() => { setActiveTab("inventory"); setMobileMenuOpen(false); }}
+              onClick={() => { setActiveTab("inventory"); setSidebarOpen(false); }}
               className={`w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl font-sans font-bold text-xs tracking-wide uppercase transition-all duration-150 cursor-pointer text-left ${
                 activeTab === "inventory"
                   ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border-r-4 border-emerald-600 dark:border-emerald-500"
@@ -1212,7 +1212,7 @@ export default function App() {
             </button>
 
             <button
-              onClick={() => { setActiveTab("chatbot"); setMobileMenuOpen(false); }}
+              onClick={() => { setActiveTab("chatbot"); setSidebarOpen(false); }}
               className={`w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl font-sans font-bold text-xs tracking-wide uppercase transition-all duration-150 cursor-pointer text-left ${
                 activeTab === "chatbot"
                   ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border-r-4 border-emerald-600 dark:border-emerald-500"
@@ -1282,50 +1282,59 @@ export default function App() {
         )}
         
         {/* HEADER BAR */}
-        <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 flex items-center justify-between shrink-0">
+        <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-3 sm:px-6 flex items-center justify-between shrink-0">
           
-          <div className="flex items-center space-x-3">
-            {/* Hamburger menu trigger */}
+          <div className="flex items-center gap-1.5 sm:gap-4">
+            {/* Hamburger menu trigger (always visible as requested) */}
             <button
-              onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden p-1.5 hover:bg-slate-100 dark:hover:bg-slate-150 rounded-lg text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
+              onClick={() => setSidebarOpen(true)}
+              className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-600 dark:text-slate-300 transition-colors cursor-pointer flex items-center justify-center border border-slate-200/40 dark:border-slate-700/40 shadow-xs"
+              title="Open menu"
             >
               <Menu className="w-5 h-5" />
             </button>
 
             {/* Mobile-only brand logo */}
             <div className="flex items-center gap-2 lg:hidden">
-              <FlockIntelLogo size="md" showText={true} />
+              <FlockIntelLogo size="sm" showText={true} />
             </div>
 
-            {/* Desktop-only Active View Title */}
-            <h1 className="hidden lg:block text-sm font-bold text-slate-800 dark:text-white font-display uppercase tracking-wider">
-              {activeTab === "dashboard" ? "Performance Dashboard" :
-               activeTab === "batches" ? "Flock Batches" :
-               activeTab === "logging" ? "Medical Logs & Records" :
-               activeTab === "analytics" ? "Analytics & Insights" :
-               "FlockIntel Advisor Chat"}
-            </h1>
+            {/* Desktop-only Active View Title or Brand Logo */}
+            {activeTab === "dashboard" ? (
+              <div className="hidden lg:block">
+                <FlockIntelLogo size="md" showText={true} />
+              </div>
+            ) : (
+              <h1 className="hidden lg:block text-sm font-bold text-slate-800 dark:text-white font-display uppercase tracking-wider">
+                {activeTab === "batches" ? "Flock Batches" :
+                 activeTab === "logging" ? "Medical Logs & Records" :
+                 activeTab === "analytics" ? "Analytics & Insights" :
+                 activeTab === "inventory" ? "Inventory & Supplies" :
+                 "FlockIntel Advisor Chat"}
+              </h1>
+            )}
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center gap-1.5 sm:gap-4">
             
             {/* Bio Alert Flag */}
             {recentLosses.length > 0 && (
-              <div className="flex items-center space-x-2 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 px-3 py-1 rounded-full text-xs font-bold border border-rose-100 dark:border-rose-900/30 animate-pulse">
+              <div className="flex items-center space-x-1 sm:space-x-2 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold border border-rose-100 dark:border-rose-900/30 animate-pulse">
                 <span className="w-1.5 h-1.5 bg-rose-500 dark:bg-rose-400 rounded-full"></span>
-                <span>Critical: High Mortality</span>
+                <span className="hidden sm:inline">Critical: High Mortality</span>
+                <span className="inline sm:hidden">Critical</span>
               </div>
             )}
 
             {/* Quick Tour Launcher */}
             <button
               onClick={() => { setShowTourOnly(true); setTourStep(0); }}
-              className="flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-100 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer select-none shrink-0"
+              className="flex items-center gap-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-100 px-2 sm:px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer select-none shrink-0"
               title="Launch systems walk-through guide"
             >
               <HelpCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-              <span className="hidden md:inline">Launch Tour</span>
+              <span className="hidden lg:inline">Launch Tour</span>
+              <span className="hidden sm:inline lg:hidden">Tour</span>
             </button>
 
             {/* Dark Mode Toggle */}
@@ -1517,22 +1526,22 @@ export default function App() {
             </div>
 
             {/* User Indicator / Account Switcher */}
-            <div className="flex items-center gap-3 border-l border-slate-200 dark:border-slate-800 pl-4 bg-transparent select-none shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-3 border-l border-slate-200 dark:border-slate-800 pl-2 sm:pl-4 bg-transparent select-none shrink-0">
               {showResetAppConfirm ? (
-                <div className="hidden sm:flex items-center gap-1.5 animate-fadeIn bg-rose-50 dark:bg-rose-950/20 px-2.5 py-1.5 rounded-full border border-rose-100 dark:border-rose-900/30">
+                <div className="hidden sm:flex items-center gap-1 animate-fadeIn bg-rose-50 dark:bg-rose-950/20 px-2 py-1 rounded-full border border-rose-100 dark:border-rose-900/30">
                   <span className="text-[9px] font-black text-rose-700 dark:text-rose-300 uppercase leading-none">Reset workspace?</span>
                   <button
                     onClick={() => {
                       handleResetAsNewUser();
                       setShowResetAppConfirm(false);
                     }}
-                    className="text-[9px] text-white bg-rose-600 hover:bg-rose-700 px-2 py-0.5 rounded-full font-bold cursor-pointer transition-all"
+                    className="text-[9px] text-white bg-rose-600 hover:bg-rose-700 px-1.5 py-0.5 rounded-full font-bold cursor-pointer transition-all"
                   >
                     Yes
                   </button>
                   <button
                     onClick={() => setShowResetAppConfirm(false)}
-                    className="text-[9px] text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 px-2 py-0.5 rounded-full font-bold cursor-pointer transition-all"
+                    className="text-[9px] text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 px-1.5 py-0.5 rounded-full font-bold cursor-pointer transition-all"
                   >
                     Cancel
                   </button>
@@ -1540,31 +1549,34 @@ export default function App() {
               ) : (
                 <button
                   onClick={() => setShowResetAppConfirm(true)}
-                  className="hidden sm:flex items-center gap-1 bg-slate-50 hover:bg-rose-50 hover:text-rose-600 dark:bg-slate-150 dark:hover:bg-rose-950/30 text-slate-500 border border-slate-200 dark:border-slate-150 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer"
+                  className="hidden sm:flex items-center gap-1 bg-slate-50 hover:bg-rose-50 hover:text-rose-600 dark:bg-slate-150 dark:hover:bg-rose-950/30 text-slate-500 border border-slate-200 dark:border-slate-150 px-2 sm:px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer"
                   title="Restart application as a new user with onboarding wizard"
                 >
                   <RefreshCw className="w-2.5 h-2.5 shrink-0" />
-                  Reset App State
+                  <span className="hidden xl:inline">Reset App State</span>
+                  <span className="inline xl:hidden">Reset</span>
                 </button>
               )}
 
               {isDemoMode ? (
                 <button
                   onClick={handleSwitchToMainAccount}
-                  className="hidden md:flex items-center gap-1.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/55 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-900/30 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer"
+                  className="hidden md:flex items-center gap-1 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/55 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-900/30 px-2 sm:px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer"
                   title="Switch back to your live account data"
                 >
                   <span className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-ping"></span>
-                  Active Demo
+                  <span className="hidden lg:inline">Active Demo</span>
+                  <span className="inline lg:hidden">Demo</span>
                 </button>
               ) : (
                 <button
                   onClick={handleSwitchToDemoMode}
-                  className="hidden md:flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-100 dark:hover:bg-slate-150 text-slate-600 dark:text-slate-350 border border-slate-200 dark:border-slate-150 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer"
+                  className="hidden md:flex items-center gap-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-100 dark:hover:bg-slate-150 text-slate-600 dark:text-slate-350 border border-slate-200 dark:border-slate-150 px-2 sm:px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer"
                   title="Load the simulated sandbox data"
                 >
                   <Sparkles className="w-3 h-3 text-slate-400 dark:text-slate-500" />
-                  Try Demo
+                  <span className="hidden lg:inline">Try Demo</span>
+                  <span className="inline lg:hidden font-black">Demo</span>
                 </button>
               )}
               
@@ -1579,7 +1591,7 @@ export default function App() {
                 >
                   {isDemoMode ? "DS" : "FL"}
                 </div>
-                <div className="hidden md:block text-left">
+                <div className="hidden lg:block text-left">
                   <p className="text-xs font-bold text-slate-700 dark:text-slate-200 leading-none">
                     {isDemoMode ? "Demo Sandbox" : "FlockIntel Manager"}
                   </p>
